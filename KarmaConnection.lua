@@ -439,11 +439,9 @@ function _teamshild()
 	if enemycount >= Menu.extra.teamshild.ftsenemy and allycount >= Menu.extra.teamshild.ftsally then
 		blockR = true
 		blockE = true		
-		if RReady and EReady then	
-		PrintChat("in teamshild")
+		if RReady and EReady then		
 			local besttar = _getEtar()
-			if besttar ~=nil then
-			PrintChat("in teamshild22222")
+			if besttar ~=nil then			
 				Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send()
 				CastSpell(_E, besttar)
 			end
@@ -488,10 +486,8 @@ function _getEtar()
     for i=1, #allyTable do
         local currAlly = allyTable[i]		
         if currAlly.team == myHero.team then		
-			local currAllyAllys =  _countallys(currAlly, 400)
-			PrintChat("allyinrange to etar: "..currAllyAllys)
-            if myHero:GetDistance(currAlly) <= 800 and currAllyAllys >= allycountT then
-			 PrintChat("bestddddddddddddddetarreturn: "..currAlly.name) 
+			local currAllyAllys =  _countallys(currAlly, 400)			
+            if myHero:GetDistance(currAlly) <= 800 and currAllyAllys >= allycountT then			 
 				bestEtarR = currAlly
 				allycountT = currAllyAllys
 			end
