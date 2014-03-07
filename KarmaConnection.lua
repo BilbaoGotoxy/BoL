@@ -10,6 +10,8 @@ require "VPrediction"
 	local Qrange, Qwidth, Qspeed, Qdelay = 1000, 70, 1800, 0.25
 	local Wrange = 650
 	local Erange,Eaoe = 800, 400
+	local blockR = false
+	local blockE = false
 	local QReady, WReady, EReady, RReady = false, false, false, false
 	-------/Skills info-------
 	
@@ -20,7 +22,8 @@ require "VPrediction"
 	-------/Orbwalk info-------
 	
 	
-	-------Global info-------	
+	-------Global info-------
+	local allyTable
 	local ts, target, tmp_target
 	local orber = nil
 	local wayPointManager = WayPointManager()
@@ -31,7 +34,7 @@ require "VPrediction"
 	
 	-------Autolvl info-------
 	local abilitylvl = 0
-	local lvlsequence = {1, 3, 1, 2, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2}
+	local lvlsequence = 1 
 	-------/Autolvl info-------
 	
 	
@@ -41,7 +44,7 @@ require "VPrediction"
 	
 	
 	-------Auto update-------
-	local CurVer = 1.0
+	local CurVer = 1.1
 	local NeedUpdate = false
 	local updated = true	
 	-------/Auto update-------
@@ -55,9 +58,11 @@ require "VPrediction"
 function OnLoad()
 	VP = VPrediction()
 	myTrueRange = trueRange()
+	allyTable = GetAllyHeroes()
 	_loadMenu()
 	_loadTS()
-	_loadcrosshair()	
+	_loadcrosshair()
+	_setimpdef()
 	PrintChat("<font color='#03dafb'> >> KarmaConnection by Bilbao loaded. </font>")
 end
 
@@ -151,18 +156,22 @@ function _harrass()
 	end
 end
 
+
 function _smartcore()
 	if not Menu.ta.auto then return end
 	local cle = _closestenemy(myHero)
-	if myHero.health < myHero.maxHealth*0.75 then
+	if myHero.health < (myHero.maxHealth*(Menu.extra.rwslider.rwslider/100)) then
 		_smartRW(true)
 	else
 		_smartRW(false)
 	end
 	
-	if cle~=nil then			
-		if RReady and EReady and myHero:GetDistance(cle) < 300 then
-			PrintChat("dist: "..myHero:GetDistance(cle))
+	if Menu.extra.teamshild.ftsstat then
+		_teamshild()
+	end
+	
+	if cle~=nil and Menu.extra.ecfg.useE then			
+		if RReady and EReady and myHero:GetDistance(cle) < 300 then			
 			_smartRE(true)
 		end
 	end	
@@ -173,7 +182,7 @@ end
 function _tscore(target)
 	if not Menu.ta.ts then return end
 	if target==nil or ValidTarget(target, Qrange) then return end
-	if myHero.health < myHero.maxHealth*0.75 then
+	if myHero.health < (myHero.maxHealth*(Menu.extra.rwslider.rwslider/100)) then
 		_tsRW(true, target)
 	else
 		_tsRW(false, target)
@@ -193,7 +202,7 @@ function _smartRQ(bonus)
 		tmp_target = vptarget
         if HitChance >= 2 and GetDistance(CastPosition) < Qrange and ValidTarget(vptarget, Qrange) then				
 			tmp_target = vptarget
-			if bonus==true then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
+			if bonus==true and not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
 			Packet('S_CAST', { spellId = _Q, fromX = CastPosition.x, fromY = CastPosition.z}):send()				
         end
 	end
@@ -205,7 +214,7 @@ function _smartRW(bonus)
 	local loc_target = _getslowestenemy()
 	if loc_target~=nil then				
 		tmp_target = loc_target
-		if bonus==true then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end			
+		if bonus==true and not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end			
 		CastSpell(_W, loc_target)				
 		if not _lowestally(50, Erange-25) then CastSpell(_E, myHero) end
 	end
@@ -214,15 +223,15 @@ end
 
 function _smartRE(bonus)
 	if not Menu.rota.useRE then return end
-	if bonus==true then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
-	CastSpell(_E, myHero)
+	if bonus==true and not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
+	if not blockE then CastSpell(_E, myHero) end
 end
 
 
 function _tsRQ(target)
     local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)			
     if HitChance >= 2 and GetDistance(CastPosition) < Qrange and ValidTarget(target, Qrange) then			              
-		Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send()
+		if not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
 		Packet('S_CAST', { spellId = _Q, fromX = CastPosition.x, fromY = CastPosition.z}):send()				
     end		
 end
@@ -230,37 +239,79 @@ end
 
 function _tsRW(bonus, target)
 	if target~=nil and ValidTarget(target, Wrange) then
-		if bonus then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
+		if bonus and not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
 		Packet('S_CAST', { spellId = _W, fromX = target.x, fromY = target.z}):send()
 	end	
 end
 
 
 function _tsRE()
-	Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send()
+	if not blockR then Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send() end
 	Packet('S_CAST', { spellId = _E, fromX = myHero.x, fromY = myHero.z}):send()
 end
 
 
 function _autoskill()
-	if not Menu.extra.lvl then return end
+	if not Menu.extra.alvl.alvlstatus then return end	
 	if myHero.level > abilitylvl then
 		abilitylvl = abilitylvl + 1
-		if lvlsequence[abilitylvl] == 1 then LevelSpell(_Q)
-			elseif lvlsequence[abilitylvl] == 2 then LevelSpell(_W)
-			elseif lvlsequence[abilitylvl] == 3 then LevelSpell(_E)
-			elseif lvlsequence[abilitylvl] == 4 then LevelSpell(_R)
+		if Menu.extra.alvl.lvlseq == 1 then			
+			LevelSpell(_R)
+			LevelSpell(_Q)
+			LevelSpell(_W)
+			LevelSpell(_E)
+		end
+		if Menu.extra.alvl.lvlseq == 2 then	
+			LevelSpell(_R)
+			LevelSpell(_Q)
+			LevelSpell(_E)
+			LevelSpell(_W)
+		end
+		if Menu.extra.alvl.lvlseq == 3 then	
+			LevelSpell(_R)
+			LevelSpell(_W)
+			LevelSpell(_Q)
+			LevelSpell(_E)
+		end
+		if Menu.extra.alvl.lvlseq == 4 then	
+			LevelSpell(_R)
+			LevelSpell(_W)
+			LevelSpell(_E)
+			LevelSpell(_Q)
+		end
+		if Menu.extra.alvl.lvlseq == 5 then	
+			LevelSpell(_R)
+			LevelSpell(_E)
+			LevelSpell(_Q)
+			LevelSpell(_W)
+		end
+		if Menu.extra.alvl.lvlseq == 6 then	
+			LevelSpell(_R)
+			LevelSpell(_E)
+			LevelSpell(_W)
+			LevelSpell(_Q)
 		end
 	end
 end
 
 
 function _OrbWalk()
-	if not Menu.extra.orb then return end
-	if not (Menu.keys.permrota or Menu.keys.okdrota or Menu.keys.permhrs or Menu.keys.okdhrs) then return end
+	local letmeorb = false	
+	if Menu.extra.orb == 1 then
+		if (Menu.keys.permrota or Menu.keys.okdrota or Menu.keys.permhrs or Menu.keys.okdhrs) then
+			letmeorb = true
+		end
+	end
+	if Menu.extra.orb == 2 then
+		letmeorb = true
+	end
+	if Menu.extra.orb == 3 then
+		letmeorb = false
+	end
+	if not letmeorb then return end
 	orber = _orbwalktarget()
 	tmp_target = orber
-	if orber~=nil and GetDistance(orber) <= myTrueRange then		
+	if orber~=nil and GetDistance(orber) <= myHero.range then		
 		if timeToShoot() then
 			myHero:Attack(orber)
 		elseif heroCanMove()  then
@@ -382,6 +433,75 @@ function _lowestally(percent, range)
 end
 
 
+function _teamshild()
+	local enemycount = _countenemys(myHero, Menu.extra.teamshild.ftsenemyrange)
+	local allycount = _countallys(myHero, Erange)
+	if enemycount >= Menu.extra.teamshild.ftsenemy and allycount >= Menu.extra.teamshild.ftsally then
+		blockR = true
+		blockE = true		
+		if RReady and EReady then	
+		PrintChat("in teamshild")
+			local besttar = _getEtar()
+			if besttar ~=nil then
+			PrintChat("in teamshild22222")
+				Packet('S_CAST', { spellId = _R, fromX = myHero.x, fromY = myHero.z}):send()
+				CastSpell(_E, besttar)
+			end
+		end
+	else
+		blockR = false
+		blockE = false
+	end
+end
+
+function _countenemys(from, range)
+	local enemysinrange = 0
+    for i=1, heroManager.iCount do
+        currEnemy = heroManager:GetHero(i)
+        if currEnemy.team ~= myHero.team then
+            if from:GetDistance(currEnemy) <= range and not currEnemy.dead and ValidTarget(currEnemy, range) then
+				enemysinrange = enemysinrange + 1
+			end
+        end
+    end
+    return enemysinrange
+end
+
+
+function _countallys(from, range)
+	local allysinrange = 0
+    for i=1, heroManager.iCount do
+        currAlly = heroManager:GetHero(i)
+        if currAlly.team == myHero.team then
+            if from:GetDistance(currAlly) <= range and not currAlly.dead then
+				allysinrange = allysinrange + 1
+			end
+        end
+    end
+    return allysinrange
+end
+
+
+function _getEtar()
+	local bestEtarR = nil
+	local allycountT = 0
+    for i=1, #allyTable do
+        local currAlly = allyTable[i]		
+        if currAlly.team == myHero.team then		
+			local currAllyAllys =  _countallys(currAlly, 400)
+			PrintChat("allyinrange to etar: "..currAllyAllys)
+            if myHero:GetDistance(currAlly) <= 800 and currAllyAllys >= allycountT then
+			 PrintChat("bestddddddddddddddetarreturn: "..currAlly.name) 
+				bestEtarR = currAlly
+				allycountT = currAllyAllys
+			end
+        end
+    end
+	if bestEtar~=nil then PrintChat("bestetarreturn: "..bestEtarR.name) end
+    return bestEtarR
+end
+
+	
 function trueRange()
 	return myHero.range + GetDistance(myHero.minBBox)
 end
@@ -450,10 +570,10 @@ function _loadMenu()
 		Menu:addSubMenu("Drawing", "draw")
 			Menu.draw:addSubMenu("WayPointManager","drawsub")
 				Menu.draw.drawsub:addParam("drawwp", "Draw waypoints", SCRIPT_PARAM_ONOFF, true)
-				Menu.draw.drawsub:addParam("drawwpr", "Draw waypoint rate", SCRIPT_PARAM_ONOFF, true)
+				Menu.draw.drawsub:addParam("drawwpr", "Draw waypoint rate", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
 			Menu.draw:addSubMenu("Target visualisation", "tarvisu")
-				Menu.draw.tarvisu:addParam("drawltar", "Draw line to target", SCRIPT_PARAM_ONOFF, true)
+				Menu.draw.tarvisu:addParam("drawltar", "Draw line to target", SCRIPT_PARAM_ONOFF, false)
 				Menu.draw.tarvisu:addParam("drawcltar", "Draw circle around target", SCRIPT_PARAM_ONOFF, true)
 		-----------------------------------------------------------------------------------------------------
 			Menu.draw:addSubMenu("Ranges", "drawsub2")
@@ -463,11 +583,13 @@ function _loadMenu()
 				Menu.draw.drawsub2:addParam("drawE", "Draw ERange", SCRIPT_PARAM_ONOFF, true)
 		-----------------------------------------------------------------------------------------------------
 		
+		
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Harrass", "harrass")
 			Menu.harrass:addParam("hrsQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
 			Menu.harrass:addParam("hrsW", "Use W", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
+		
 		
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Rotation", "rota")
@@ -476,13 +598,19 @@ function _loadMenu()
 			Menu.rota:addParam("useRE", "Use RE Combo", SCRIPT_PARAM_ONOFF, true)
 		-----------------------------------------------------------------------------------------------------
 		
+		
 		-----------------------------------------------------------------------------------------------------
-		Menu:addSubMenu("Hotkeys", "keys")			
-			Menu.keys:addParam("permhrs", "Auto Harrass", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
-			Menu.keys:addParam("okdhrs", "OnKeyDown Harrass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("T"))
+		Menu:addSubMenu("Hotkeys", "keys")		
 			Menu.keys:addParam("permrota", "Auto Rotation", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
+			Menu.keys:permaShow("permrota")
 			Menu.keys:addParam("okdrota", "OnKeyDown Rotation", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
+			Menu.keys:permaShow("okdrota")		
+			Menu.keys:addParam("permhrs", "Auto Harrass", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("Z"))
+			Menu.keys:permaShow("permhrs")
+			Menu.keys:addParam("okdhrs", "OnKeyDown Harrass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("T"))
+			Menu.keys:permaShow("okdhrs")
 		-----------------------------------------------------------------------------------------------------
+		
 		
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Target acquisition", "ta")	
@@ -490,16 +618,29 @@ function _loadMenu()
 			Menu.ta:addParam("auto", "Smart aming", SCRIPT_PARAM_ONOFF, true)
 		-----------------------------------------------------------------------------------------------------
 		
+		
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Target tracking", "tartrack")
 			Menu.tartrack:addParam("single", "Single target mark", SCRIPT_PARAM_ONOFF, true)
 			--Menu.tartrack:addParam("multi", "Multi target mark", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
 		
+		
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Extra", "extra")
-			Menu.extra:addParam("orb", "Orbwalk", SCRIPT_PARAM_ONOFF, true)
-			Menu.extra:addParam("lvl", "Autoskill R>Q>W>E", SCRIPT_PARAM_ONOFF, true)
+			Menu.extra:addParam("orb", "Orbwalk", SCRIPT_PARAM_LIST, 1, { "COMBO", "ALWAYS", "NEVER" })
+			Menu.extra:addSubMenu("Auto level", "alvl")
+				Menu.extra.alvl:addParam("alvlstatus", "Auto lvl skills", SCRIPT_PARAM_ONOFF, false)
+				Menu.extra.alvl:addParam("lvlseq", "Choose your lvl Sequence", SCRIPT_PARAM_LIST, 1, { "R>Q>W>E", "R>Q>E>W", "R>W>Q>E", "R>W>E>Q", "R>E>Q>W", "R>E>W>Q" })
+			Menu.extra:addSubMenu("Force Teamshild", "teamshild")				
+				Menu.extra.teamshild:addParam("ftsstat", "Force Teamshild", SCRIPT_PARAM_ONOFF, false)
+				Menu.extra.teamshild:addParam("ftsally", "Min. Ally in Range",  SCRIPT_PARAM_SLICE, 2, 0, 4, 0)
+				Menu.extra.teamshild:addParam("ftsenemy", "Min. Enemy in Range",  SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+				Menu.extra.teamshild:addParam("ftsenemyrange", "Max Range for enemys",  SCRIPT_PARAM_SLICE, 1000, 0, 2500, 0)
+			Menu.extra:addSubMenu("RW-Config", "rwslider")
+				Menu.extra.rwslider:addParam("rwslider", "myHeroHP < %",  SCRIPT_PARAM_SLICE, 75, 0, 100, 0)
+			Menu.extra:addSubMenu("E Config", "ecfg")
+				Menu.extra.ecfg:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
 end
 
@@ -508,4 +649,13 @@ function _loadTS()
 	ts = TargetSelector(TARGET_LOW_HP_PRIORITY,1000)
 	ts.name = "Karma"
 	Menu:addTS(ts)
+end
+
+
+function _setimpdef()
+Menu.extra.alvl.alvlstatus = false
+Menu.keys.permrota = false
+Menu.keys.okdrota = false
+Menu.keys.permhrs = false
+Menu.keys.okdhrs = false
 end
