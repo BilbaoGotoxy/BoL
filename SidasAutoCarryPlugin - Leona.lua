@@ -35,7 +35,10 @@ if myHero.charName ~= "Leona" then return end
 	
 	local freepredic = false
 	local freepredicfile = true
-		
+	
+	
+
+	
 	local Target = nil
 	-------Skills info-------
 	Qrange, Qspeed, Qdelay, Qwidth = 215, 20000, 0, 0
@@ -50,7 +53,8 @@ if myHero.charName ~= "Leona" then return end
 	-------/OnDraw info-------
 	
 	-------Spell status-------
-	QReady, WReady, EReady, RReady = false, false, false, false	
+	QReady, WReady, EReady, RReady = false, false, false, false
+	local mylevelSequence = {1,3,2,2,2,4,2,1,2,1,4,1,1,3,3,4,3,3}
 	-------/Spell status-------
 
 	
@@ -70,21 +74,27 @@ function PluginOnTick()
 	--if Prodiction.status == 1 then Menu.co.addParam("testt", "free user prodic", SCRIPT_PARAM_INFO, "") end
 	--if Prodiction.status == 2 then Menu.co.addParam("testtt", "paidpro", SCRIPT_PARAM_INFO, "") end
 	--if  PaidUser then Menu.co.addParam("testt", "free user prodic", SCRIPT_PARAM_INFO, "") end
+	
+
 	_update()
 	_smartcore()
+	
+	
+
+	
 end
 
 function PluginOnDraw()
-
---DrawText(tostring(" "..txtonme),30,450,125,ARGB(255,248,255,20))
-
+if GetInGameTimer() >= 20 and GetInGameTimer()<= 21 then
+	PrintFloatText(myHero, 9, "Leona the Radiant Dawn - by Bilbao")
+end
 
 if Menu.draw.drawE then
-DrawCircle(myHero.x, myHero.y, myHero.z, Erange, ARGB(24,255,7,7))
+	DrawCircle(myHero.x, myHero.y, myHero.z, Erange, ARGB(24,255,7,7))
 end
 
 if Menu.draw.drawR then
-DrawCircle(myHero.x, myHero.y, myHero.z, Rrange, ARGB(25,7,7,255))
+	DrawCircle(myHero.x, myHero.y, myHero.z, Rrange, ARGB(25,7,7,255))
 end
 
 
@@ -92,7 +102,7 @@ end
 		if Menu.draw.drawEposway then
 			--DrawArrows(Target, currentEpos, 2, ARGB(255,255,7,7))
 		end
-		if Menu.draw.Epos then
+		if Menu.draw.drawEpos then
 			DrawCircle(currentEpos.x, currentEpos.y, currentEpos.z, 100, ARGB(255,255,7,7))
 		end
     end
@@ -101,13 +111,98 @@ end
 		if Menu.draw.drawRposway then
 			--DrawArrows(Target, currentRpos, 2, ARGB(255,7,7,255))
 		end
-	if Menu.draw.Rpos then
-        DrawCircle(currentRpos.x, currentRpos.y, currentRpos.z, 100, ARGB(255,7,7,255))
+	if Menu.draw.drawRpos then
+        DrawCircle(currentRpos.x, currentRpos.y, currentRpos.z,Menu.co.rcenter , ARGB(255,7,7,255))
 	end
     end
+	
+--[[
+local textA = "PQWER+aa"
+DrawLineHPBar(testdmg(), 1, textA)
+if Target~nil and not Target.dead and Target.visible and Target.team ~= myHero.team then
+	Target = GetMyHero()
+	DrawLineHPBar(dmgEQ(Target), 1, "EQ")
+	DrawLineHPBar(dmgEWQ(Target), 2, "EWQ")
+	DrawLineHPBar(dmgEWQR(Target), 3, "EWQR")
+end
+
+]]
+--for i, enemy in ipairs(GetEnemyHeroes()) do
+	for i, enemy in ipairs(AutoCarry.EnemyTable) do
+		if enemy~=nil and not enemy.dead and enemy.visible and GetDistance(enemy) < 2500 then
+	
+			DrawLineHPBar(dmgEQ(enemy), 1, "EQ", enemy)
+			DrawLineHPBar(dmgEWQ(enemy), 2, "EWQ", enemy)
+			DrawLineHPBar(dmgEWQR(enemy), 3, "EWQR", enemy)
+		end
+	end
 
 
 end
+
+function GetHPBarPos(enemy)
+	enemy.barData = GetEnemyBarData()
+	local barPos = GetUnitHPBarPos(enemy)
+	local barPosOffset = GetUnitHPBarOffset(enemy)
+	local barOffset = { x = enemy.barData.PercentageOffset.x, y = enemy.barData.PercentageOffset.y }
+	local barPosPercentageOffset = { x = enemy.barData.PercentageOffset.x, y = enemy.barData.PercentageOffset.y }
+	local BarPosOffsetX = 171
+	local BarPosOffsetY = 46
+	local CorrectionY =  0
+	local StartHpPos = 31
+	barPos.x = barPos.x + (barPosOffset.x - 0.176 + barPosPercentageOffset.x) * BarPosOffsetX + StartHpPos
+	barPos.y = barPos.y + (barPosOffset.y - 0.5 + barPosPercentageOffset.y) * BarPosOffsetY + CorrectionY 
+						
+	local StartPos = Vector(barPos.x , barPos.y, 0)
+	local EndPos =  Vector(barPos.x + 108 , barPos.y , 0)
+
+	return Vector(StartPos.x, StartPos.y, 0), Vector(EndPos.x, EndPos.y, 0)
+end
+
+function dmgEQ(target)
+        local ADDmg = getDmg("AD", target, myHero)
+        local extraQ = getDmg("Q", target, myHero)		
+		local extraE = getDmg("E", target, myHero)		
+        return ADDmg+extraQ+extraE
+end
+function dmgEWQ(target)
+        local ADDmg = getDmg("AD", target, myHero)
+        local extraQ = getDmg("Q", target, myHero)
+		local extraW = getDmg("Q", target, myHero)			
+		local extraE = getDmg("E", target, myHero)		
+        return ADDmg+extraQ+extraE+extraW
+end
+function dmgEWQR(target)
+        local ADDmg = getDmg("AD", target, myHero)
+        local extraQ = getDmg("Q", target, myHero)
+		local extraW = getDmg("Q", target, myHero)			
+		local extraE = getDmg("E", target, myHero)
+		local extraR = getDmg("R", target, myHero)
+        return ADDmg+extraQ+extraE+extraW+extraR
+end
+function DrawLineHPBar(damage, line, text, unit)
+	local StartPos, EndPos = GetHPBarPos(unit)
+	local Real_X = StartPos.x+24
+	local Offs_X = (Real_X + ((unit.health-damage)/unit.maxHealth) * (EndPos.x - StartPos.x - 2))
+	if Offs_X < Real_X then Offs_X = Real_X end
+	
+	if line == 1 then
+		DrawLine(Offs_X-150, StartPos.y-45, Offs_X-150, StartPos.y-2, 2, ARGB(255,7,255,7))
+		DrawText(tostring(text),15,Offs_X-148,StartPos.y-45,ARGB(255,255,255,255))
+	end
+	if line == 2 then
+		DrawLine(Offs_X-150, StartPos.y-60, Offs_X-150, StartPos.y-2, 2, ARGB(255,7,255,7))
+		DrawText(tostring(text),15,Offs_X-148,StartPos.y-60,ARGB(255,255,255,255))
+	end
+	if line == 3 then
+		DrawLine(Offs_X-150, StartPos.y-75, Offs_X-150, StartPos.y-2, 2, ARGB(255,7,255,7))
+		DrawText(tostring(text),15,Offs_X-148,StartPos.y-75,ARGB(255,255,255,255))
+	end
+end
+
+
+
+------------------------
 
 function PluginOnCreateObj(object)
 
@@ -172,6 +267,7 @@ end
 function QOnDashFunc(unit, pos, spell)
     if GetDistance(pos) < Qrange and myHero:CanUseSpell(spell.Name) == READY then
         CastSpell(spell.Name)
+		AutoCarry.CanAttack = true
 		player:Attack(unit)
     end
 end
@@ -179,6 +275,7 @@ end
 function QAfterDashFunc(unit, pos, spell)
     if GetDistance(pos) < Qrange and myHero:CanUseSpell(spell.Name) == READY then
         CastSpell(spell.Name)
+		AutoCarry.CanAttack = true
 		player:Attack(unit)
     end
 end
@@ -186,6 +283,7 @@ end
 function QOnImmobileFunc(unit, pos, spell)
     if GetDistance(pos) < Qrange and myHero:CanUseSpell(spell.Name) == READY then
         CastSpell(spell.Name)
+		AutoCarry.CanAttack = true
 		player:Attack(unit)
     end
 end
@@ -193,6 +291,7 @@ end
 function QAfterImmobileFunc(unit, pos, spell)
     if GetDistance(pos) < Qrange and myHero:CanUseSpell(spell.Name) == READY then
         CastSpell(spell.Name)
+		AutoCarry.CanAttack = true
 		player:Attack(unit)
     end
 end		
@@ -203,13 +302,18 @@ end
 
 function _smartcore()
 
-if ValidTarget(Target) and GetDistance(Target) < Qrange and QReady and (Menu.co.q == 1 or Menu.co.eq or Menu.co.eqr) then
-	CastSpell(_W)
+if ValidTarget(Target) and GetDistance(Target) < Qrange and QReady and (Menu.co.q == 1 or Menu.co.eq or Menu.co.eqr) then	
 	_castQ()
+	AutoCarry.CanAttack = true
 	player:Attack(Target)
+end
+--Menu.co.ws.inWrange/autoW/autoC
+if ValidTarget(Target) and GetDistance(Target) < Menu.co.ws.inWrange and WReady and (Menu.co.ws.autoC or Menu.co.ws.autoW) then
+	CastSpell(_W)
 end
 
 if Menu.ta.co == 1 then --FREEPrediction
+PrintChat("NONVIPprediction")
 --txtonme="M1"
 if ValidTarget(Target) then
 	local Position = Efreepredic:GetPrediction(Target)
@@ -224,33 +328,33 @@ end
 if ValidTarget(Target) then
 	local Position = Rfreepredic:GetPrediction(Target)
 	if Position ~= nil then
-		currentEpos = Position
+		currentRpos = Position
 	else
-		currentEpos = nil
+		currentRpos = nil
 	end
 else
-	currentEpos = nil
+	currentRpos = nil
 end
 	--combos	
 --		PrintChat("test")
 	if Menu.co.eq then --combo 1
-		if ValidTarget(Target, Erange) and EReady and QReady then
+		if ValidTarget(Target, Erange) and currentEpos.x~=nil then
 	
 			CastSpell(_E, currentEpos.x, currentEpos.z)				
 		end
 	end	
-	if Menu.co.eqr and EReady and QReady and RReay then
-		if ValidTarget(Target, Erange) then
+	if Menu.co.eqr then
+		if ValidTarget(Target, Erange) and currentEpos.x~=nil then
 			CastSpell(_E, currentEpos.x, currentEpos.z)				
 		end
-		if ValidTarget(Target, Rrange) and EReady and QReady and RReady then
+		if ValidTarget(Target, Rrange) and currentRpos.x~=nil then
 			CastSpell(_R, currentRpos.x, currentRpos.z)					
 		end
 	end
 end
 
-if Menu.ta.co == 2 then --VIPPrediction
---txtonme="M2"
+if Menu.ta.co == 2 and VIP_USER then --VIPPrediction
+PrintChat("VIPprediction")
 if ValidTarget(Target) then
 	local Position = Evipfree:GetPrediction(Target)
 	if Position ~= nil then
@@ -273,22 +377,22 @@ else
 end
 	--combos	
 	if Menu.co.eq then --combo 1
-		if ValidTarget(Target, Erange) and EReady and QReady then
-			CastSpell(_E, currentEpos.x, currentEpos.z)				
-		end
-	end	
-	if Menu.co.eqr and EReady and QReady and RReay then
 		if ValidTarget(Target, Erange) then
 			CastSpell(_E, currentEpos.x, currentEpos.z)				
 		end
-		if ValidTarget(Target, Rrange) and EReady and QReady and RReady then
+	end	
+	if Menu.co.eqr then
+		if ValidTarget(Target, Erange) and currentEpos.x~=nil then
+			CastSpell(_E, currentEpos.x, currentEpos.z)				
+		end
+		if ValidTarget(Target, Rrange) and currentRpos.x~=nil then
 			CastSpell(_R, currentRpos.x, currentRpos.z)					
 		end
 	end
 end
 
-if Menu.ta.co == 3 then --VPrediction
---txtonme="M3"
+if Menu.ta.co == 3 and vpredicfile then --VPrediction
+PrintChat("VPREdiction")
 	if ValidTarget(Target) then
 		local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(Target, Edelay, Ewidth, Erange, Espeed, myHero, false)
 		if Position ~= nil then
@@ -301,7 +405,7 @@ if Menu.ta.co == 3 then --VPrediction
 		currentEpos = nil
 	end
 	if ValidTarget(Target) then
-		local CastPosition,  HitChance,  Position = VP:GetCircularCastPosition(Target, Rdelay, Rnuke, Rrange, Rspeed, myHero, false)
+		local CastPosition,  HitChance,  Position = VP:GetCircularCastPosition(Target, Rdelay, Menu.co.rcenter, Rrange, Rspeed, myHero, false)
 		if Position ~= nil then
 			currentRpos = CastPosition
 			vpredhitR = HitChance
@@ -313,20 +417,21 @@ if Menu.ta.co == 3 then --VPrediction
 	end	
 	--combos	
 	if Menu.co.eq then --combo 1
-		if ValidTarget(Target, Erange) and EReady and QReady and vpredhitE >= 2 then
+		if ValidTarget(Target, Erange) and vpredhitE >= 3 and currentEpos.x~=nil then
 			CastSpell(_E, currentEpos.x, currentEpos.z)				
 		end
 	end	
-	if Menu.co.eqr and EReady and QReady and RReay then
-		if ValidTarget(Target, Erange) then
+	if Menu.co.eqr then
+		if ValidTarget(Target, Erange) and currentEpos.x~=nil then
 			CastSpell(_E, currentEpos.x, currentEpos.z)				
 		end
-		if ValidTarget(Target, Rrange) and EReady and QReady and RReady and vpredhitR >= 2 then
+		if ValidTarget(Target, Rrange) and vpredhitR >= 2 and currentRpos.x~=nil then
 			CastSpell(_R, currentRpos.x, currentRpos.z)					
 		end
 	end
 end
-if Menu.ta.co == 4 then --prOdiction
+if Menu.ta.co == 4 and prodicfile then --prOdiction
+PrintChat("PROdiction")
 local tar = nil --GetTarget()
 if tar then txtonme="target: "..tar.name end
 --Target = tar
@@ -350,13 +455,12 @@ if tar then txtonme="target: "..tar.name end
 		
         if Menu.co.eq then	
 				if Target==nil then txtonme="kein ziel" else txtonme="ziel vorhanden" end
-			if ValidTarget(Target, Erange)and EReady and QReady then	
-							
+			if ValidTarget(Target, Erange) and EReady then							
 				ProdictionE:GetPredictionCallBack(Target, castE)		
 			end		
 		end
-		if Menu.co.eqr and EReady then
-			if ValidTarget(Target, Erange) then
+		if Menu.co.eqr then
+			if ValidTarget(Target, Erange) and EReady then
 				ProdictionE:GetPredictionCallBack(Target, castE)				
 			end
 			if ValidTarget(Target, Rrange) and RReady then
@@ -378,6 +482,7 @@ end
 
 function _castQ()
 if GetDistance(ts.target) < Qrange and QReady then
+		AutoCarry.CanAttack = true
         CastSpell(_Q)		
 end
 end
@@ -389,10 +494,24 @@ end
 
 
 function castE(unit, pos)
-txtonme="cast e"
 if GetDistance(pos) < Erange and EReady then
-	CastSpell(_E, pos.x, pos.z)
+	--CastSpell(_E, pos.x, pos.z)
+	_sendE(pos)
 end
+end
+
+function _sendE(target)
+	local Epacket = CLoLPacket(153)
+		Epacket.dwArg1 = 1
+		Epacket.dwArg2 = 0
+		Epacket:EncodeF(myHero.networkID)
+		Epacket:Encode1(_E)
+		Epacket:EncodeF(target.x)
+		Epacket:EncodeF(target.z)
+		Epacket:EncodeF(target.x)
+		Epacket:EncodeF(target.z)
+		Epacket:EncodeF(0)
+		SendPacket(Epacket)
 end
 
 function castR(unit, pos)
@@ -411,8 +530,9 @@ txtonme="epos"
 end
 
 function _update()
+	autoLevelSetSequence(mylevelSequence)
 	ts:update()
-	Target = ts.target
+	Target = ts.target	
 	_spellcheck()
 end
 
@@ -434,12 +554,13 @@ function _initmenu()
 	if AutoCarry.Skills then IsSACReborn = true else IsSACReborn = false end
 	
 	if IsSACReborn then
-		AutoCarry.Crosshair:SetSkillCrosshairRange(900)
+		AutoCarry.OverrideCustomChampionSupport = true
+		AutoCarry.Crosshair:SetSkillCrosshairRange(1200)
 		AutoCarry.Crosshair.isCaster = true
 		AutoCarry.MyHero:AttacksEnabled(true)
 		AutoCarry.Skills:DisableAll()
 	else
-		AutoCarry.SkillsCrosshair.range = 900
+		AutoCarry.SkillsCrosshair.range = 1200
 		AutoCarry.CanAttack = true
     end
 	
@@ -462,7 +583,7 @@ function _initmenu()
 	else
 	freepredicfile = true --freeprediction		
 	end
-	_loadP()
+	
 	
 	Menu = AutoCarry.PluginMenu
 	Menu:addSubMenu("Target acquisition", "ta")
@@ -470,18 +591,25 @@ function _initmenu()
 
 	
 	
-	if not VIP_USER then Menu.co:addParam("co", "Use", SCRIPT_PARAM_LIST, 1, {"FREEPrediction"}) end
-	if VIP_USER and not prodicfile and not vpredicfile then Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 2, {"FREEPrediction", "VIPPrediction",  }) end
-	if VIP_USER and not prodicfile and vpredicfile then Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 3, {"FREEPrediction","VIPPrediction", "VPrediction" }) end
-	if VIP_USER and prodicfile and not vpredicfile then Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 3, {"FREEPrediction","VIPPrediction","Prodiction" }) end
-	if VIP_USER and prodicfile and vpredicfile then Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 4, {"FREEPrediction","VIPPrediction","VPrediction","Prodiction"}) end
-	
-	if Menu.ta.co==1 then Menu.ta:addParam("info", "---> FREEPrediction loaded.", SCRIPT_PARAM_INFO, "")
-		elseif Menu.ta.co==2 then Menu.ta:addParam("info", "---> VIPPrediction loaded.", SCRIPT_PARAM_INFO, "")
-		elseif Menu.ta.co==3 then Menu.ta:addParam("info", "---> VPrediction loaded.", SCRIPT_PARAM_INFO, "")
-		elseif Menu.ta.co==4 then Menu.ta:addParam("info", "---> Prodiction loaded.", SCRIPT_PARAM_INFO, "")
+	if not VIP_USER then
+		Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 1, {"FREEPrediction"})
 	end
-
+	if VIP_USER and not prodicfile and not vpredicfile then
+		Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 2, {"FREEPrediction", "VIPPrediction",  }) 
+		Menu.ta.co = 2
+	end
+	if VIP_USER and not prodicfile and vpredicfile then
+		Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 3, {"FREEPrediction","VIPPrediction", "VPrediction" }) 
+		Menu.ta.co = 3 
+	end
+	--if VIP_USER and prodicfile and not vpredicfile then Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 3, {"FREEPrediction","VIPPrediction","Prodiction" }) and Menu.ta.co =  end
+	if VIP_USER and prodicfile and vpredicfile then 
+		Menu.ta:addParam("co", "Use", SCRIPT_PARAM_LIST, 4, {"FREEPrediction","VIPPrediction","VPrediction","Prodiction"})  
+		Menu.ta.co = 4 
+	end
+	
+ 
+	
 
 	Menu:addSubMenu("Draw Options", "draw")
 		Menu.draw:addParam("drawE","Draw E Range",SCRIPT_PARAM_ONOFF, true)
@@ -490,17 +618,22 @@ function _initmenu()
 		Menu.draw:addParam("drawEposway","Draw Tar->PosE",SCRIPT_PARAM_ONOFF, true)
 		Menu.draw:addParam("drawRpos","Draw R Pos",SCRIPT_PARAM_ONOFF, true)
 		Menu.draw:addParam("drawRposway","Draw Tar->PosR",SCRIPT_PARAM_ONOFF, true)
-		
+		Menu.draw:addParam("drawinfo","Infotext about Mana",SCRIPT_PARAM_ONOFF, true)
+		Menu.draw:addParam("drawinfo2","Show pred. Dmg",SCRIPT_PARAM_ONOFF, true)
 	
 
 	Menu:addSubMenu("Combo Options", "co")
 		Menu.co:addParam("q", "Fast Q", SCRIPT_PARAM_LIST, 2, {"OnEnemyInRange", "Interupt", "Never" })
 		Menu.co:addParam("eq", "EQ Combo",SCRIPT_PARAM_ONKEYDOWN, false, string.byte("T"))
+		Menu.co:addParam("eqmana","EQ only if mana",SCRIPT_PARAM_ONOFF, false)
 		Menu.co:addParam("eqr", "EQR Combo",SCRIPT_PARAM_ONKEYDOWN, false, string.byte("T"))  
-		Menu.co:addSubMenu("W Settings", "ws")
+		Menu.co:addParam("eqrmana","EQR only if mana",SCRIPT_PARAM_ONOFF, false)
+		Menu.co:addParam("rcenter", "R core width", SCRIPT_PARAM_SLICE, 200, 100, 315, 0) 
+		
+		Menu.co:addSubMenu("W Settings", "ws") 
 			Menu.co.ws:addParam("autoW","Auto use W",SCRIPT_PARAM_ONOFF, true)
 			Menu.co.ws:addParam("autoC","Use W in Combo",SCRIPT_PARAM_ONOFF, true)
-			Menu.co.ws:addParam("inWrange", "Use in in range", SCRIPT_PARAM_SLICE, 100, 25, 500, 0)
+			Menu.co.ws:addParam("inWrange", "Use in in range", SCRIPT_PARAM_SLICE, 150, 25, 500, 0)  
 			if prodicfile then --for paidprO
 				Menu.co:addSubMenu("R Settings","rs")
 					Menu.co.rs:addParam("info", "Only PaidProdiction.", SCRIPT_PARAM_INFO, "")
@@ -522,7 +655,11 @@ function _initmenu()
 					Menu.co.qs:addParam("onimmo","Q on immobile",SCRIPT_PARAM_ONOFF, false)
 					Menu.co.qs:addParam("afterimmo","Q after immobile",SCRIPT_PARAM_ONOFF, true)					
 		end
-	ts = TargetSelector(TARGET_PRIORITY, Rrange)
+	
+		Menu:addSubMenu("Autolevel", "alvl")
+			Menu.alvl:addParam("lvlseq", "R>W>Q>E", SCRIPT_PARAM_ONOFF, false)
+	_loadP()		
+	ts = TargetSelector(TARGET_PRIORITY, 5000) --Rrange
 	ts.name = "Leona"
 	Menu:addTS(ts)
 end	
@@ -534,20 +671,20 @@ function _loadP()
 		Prodiction = ProdictManager.GetInstance()
 		ProdictionQ = Prodiction:AddProdictionObject(_Q, Qrange, Qspeed, Qdelay, Qwidth)
 		ProdictionE = Prodiction:AddProdictionObject(_E, Erange, Espeed, Edelay, Ewidth)
-		ProdictionR = Prodiction:AddProdictionObject(_R, Rrange, Rspeed, Rdelay, Rnuke)		
+		ProdictionR = Prodiction:AddProdictionObject(_R, Rrange, Rspeed, Rdelay, Menu.co.rcenter)		
 	end
 	if vpredicfile then --initiate VPprediction
 		require "VPrediction"		
-		VPrediction = VPrediction()	
+		VP = VPrediction()	
 	end
-	if freevippredicfile then --initiate VIPPrediction
+	if VIP_USER then --initiate VIPPrediction
 		Evipfree = TargetPredictionVIP(Erange, Espeed, Edelay, Ewidth, myHero)
-		Rvipfree = TargetPredictionVIP(Rrange, Rspeed, Rdelay, Rnuke, myHero)		
+		Rvipfree = TargetPredictionVIP(Rrange, Rspeed, Rdelay, Menu.co.rcenter, myHero)		
 	end
-	if freepredic then --initiate FreePredition
+	-- --initiate FreePredition
 		Efreepredic = TargetPrediction(Erange, Espeed, Edelay, Ewidth)
-		Rfreepredic = TargetPrediction(Rrange, Rspeed, Rdelay, Rnuke)	
-	end
+		Rfreepredic = TargetPrediction(Rrange, Rspeed, Rdelay, Menu.co.rcenter)	
+	--
 end
 
 
