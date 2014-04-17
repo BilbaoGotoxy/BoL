@@ -42,3 +42,8 @@ Utility series:
               WardTricks (under baron/Drake)
 [Standalone]LowHandler = activator for free user, Handles All Items, Shields, SummonerSpells
 [Standalone]SmartWalker = SmartAi, AutoADC, Support, full afk Farmmode+Fightmode. not detected as bot @gold3 atm.
+
+
+NonBol related Stuff:
+[Standalone] LoLEtal 3.5 - full raf bot + farm + lvl up to 30 with every error detection
+[Standalone] OxyFarmer 0.5 - Clash of Clans Build/Collect/Fight Bot
