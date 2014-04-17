@@ -1,6 +1,6 @@
 All Scripts are usable as VIP AND FREEUSER.
 
-support series(with MMA+SAC support, also inbuild orbwalker):
+support series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Leona - AutoEQR, AutoEQ, protect ADC/APC/Selected Ally , AutoInterrupt
 [Standalone]Nami - AutoHeal, AutoBuff, AutoUlt, TonsOfSliders, Many Protection options for Allys
 [Standalone]Soraka - Fully AfkSoraka
@@ -13,7 +13,7 @@ support series(with MMA+SAC support, also inbuild orbwalker):
 [Standalone]Nunu - SmartQWER, Protect Ally, PermaCC on Selected Enemy ( Iceball, Exhaust, FrostQueen)
 
 
-apc series(with MMA+SAC support, also inbuild orbwalker):
+apc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Brand - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Veigar - Full Combo Supports, every spell configuable, AutoStun to Interrupt ,with Free/Vip/Vpre/Pro
 [Standalone]Zyra - Full Combo Supports, every spell configuable, AutoUlt to Interrupt ,with Free/Vip/Vpre/Pro 
@@ -23,9 +23,9 @@ apc series(with MMA+SAC support, also inbuild orbwalker):
 [Standalone]Malzahar - Full Combo Supports, every spell configuable, PerfectDotHandle ,with Free/Vip/Vpre/Pro
 [Standalone]Swain - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Twisted Fate - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+[Standalone]Ryze - Exploits, MMA/SAC Integration, InBuildOrbwalker Finished. Combos 50%, SmartCasting: 0%
 
-
-adc series(with MMA+SAC support, also inbuild orbwalker):
+adc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Twich - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Caitlyn - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, Trap on Slowed/Stunned Enemys, AutoEscape, AutoOrbwalkSupport
 [Standalone]Ashe - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
@@ -36,14 +36,16 @@ adc series(with MMA+SAC support, also inbuild orbwalker):
 [Standalone]Ezreal - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(AutoJumpToMouse)
 
 
-Utility series:
+Utility series: Status: INeedVision&LowHanlder&BadAssSupport: Finished.  Smartwalker: BuggyAlpha: 70%
 [Standalone]INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne, AutoWard into Bushes with enemy,
               FullAutoward Mode(Snap Wards to important places if not warded)
               WardTricks (under baron/Drake)
 [Standalone]LowHandler = activator for free user, Handles All Items, Shields, SummonerSpells
 [Standalone]SmartWalker = SmartAi, AutoADC, Support, full afk Farmmode+Fightmode. not detected as bot @gold3 atm.
+[Standalone]BadAssSupport = KS Kills, BigMinions, Drake, Nash
 
 
-NonBol related Stuff:
+
+NonBol related Stuff: LoLEtal: Finished, OxyFarmer: StableAlpha
 [Standalone] LoLEtal 3.5 - full raf bot + farm + lvl up to 30 with every error detection
 [Standalone] OxyFarmer 0.5 - Clash of Clans Build/Collect/Fight Bot
