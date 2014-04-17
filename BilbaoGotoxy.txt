@@ -34,7 +34,9 @@ Teemo - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, Au
 Ezreal - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(AutoJumpToMouse)
 
 
+Utility series:
 INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne, AutoWard into Bushes with enemy,
               FullAutoward Mode(Snap Wards to important places if not warded)
               WardTricks (under baron/Drake)
 LowHandler = activator for free user, Handles All Items, Shields, SummonerSpells
+SmartWalker = SmartAi, AutoADC, Support, full afk Farmmode+Fightmode. not detected as bot @gold3 atm.
