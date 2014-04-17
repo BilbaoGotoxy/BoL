@@ -1,0 +1,38 @@
+support series:
+Leona - AutoEQR, AutoEQ, protect ADC/APC/Selected Ally , AutoInterrupt
+Nami - AutoHeal, AutoBuff, AutoUlt, TonsOfSliders, Many Protection options for Allys
+Soraka - Fully AfkSoraka
+Sona - Full AfkSona, Ult with Free/Vip/Vpre/Pro
+Blitzcrank - AutoInteruppt with E and R, Grab(Q) with Free/Vip/Vpre/Pro
+Thresh - AutoInterrupt with Q if possible, Grab(Q) with Free/Vip/Vpre/Pro, Smart Handle for all Spells
+Taric - AutoHeal, AutoInterrupt, Smart Combos
+Janna - Many ProtectionModes for all Allys, Many Offensive Modes for (Dis-)Engange, AutoShield, SmartShield, Protectd Ult
+Alistar - ComboSupport, AutoHeal, ProtectionMode(Knockup andor Headkick enemys aways from protected ally), SmartUlt
+Nunu - SmartQWER, Protect Ally, PermaCC on Selected Enemy ( Iceball, Exhaust, FrostQueen)
+
+
+apc series:
+Brand - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+Veigar - Full Combo Supports, every spell configuable, AutoStun to Interrupt ,with Free/Vip/Vpre/Pro
+Zyra - Full Combo Supports, every spell configuable, AutoUlt to Interrupt ,with Free/Vip/Vpre/Pro 
+Lux - Full Combo Supports, every spell configuable, AutoShield ,with Free/Vip/Vpre/Pro
+Morgana - Full Combo Supports, every spell configuable, AutoShield ,with Free/Vip/Vpre/Pro
+Karma - Full Combo Supports, every spell configuable, AutoShield ,with Free/Vip/Vpre/Pro
+Malzahar - Full Combo Supports, every spell configuable, PerfectDotHandle ,with Free/Vip/Vpre/Pro
+Swain - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+Twisted Fate - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+
+
+adc series:
+Twich - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+Caitlyn - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, Trap on Slowed/Stunned Enemys, AutoEscape, AutoOrbwalkSupport
+Ashe - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+Corki -  Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(FlyToMouse)
+Kog'Maw - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(Slow Near/Most/most ad/selected enemy)
+Sivir - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
+Teemo - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport( AutoSnapShrooms)
+Ezreal - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(AutoJumpToMouse)
+
+
+INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne
+LowHandler = activator for free user
