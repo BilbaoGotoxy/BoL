@@ -36,13 +36,14 @@ adc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Ezreal - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(AutoJumpToMouse)
 
 
-Utility series: Status: INeedVision&LowHanlder&BadAssSupport: Finished.  Smartwalker: BuggyAlpha: 70%
+Utility series: Status: INeedVision&LowHanlder&BadAssSupport: Finished.  Smartwalker: BuggyAlpha: 70%, GoldCounter: 0%
 [Standalone]INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne, AutoWard into Bushes with enemy,
               FullAutoward Mode(Snap Wards to important places if not warded)
               WardTricks (under baron/Drake)
 [Standalone]LowHandler = activator for free user, Handles All Items, Shields, SummonerSpells
 [Standalone]SmartWalker = SmartAi, AutoADC, Support, full afk Farmmode+Fightmode. not detected as bot @gold3 atm.
 [Standalone]BadAssSupport = KS Kills, BigMinions, Drake, Nash
+[Standalone][LIB]GoldCounter = Count Enemy and Ally Gold status based on killed Nash/Drake/Towers/Inhibs/BigMinions/Smallminions
 
 
 
