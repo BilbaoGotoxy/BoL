@@ -2,9 +2,18 @@ Because my main acc is banned, i am a little bit out of my timeplan for my relea
 
 soon...
 
+
+
+
 All Scripts are usable as VIP AND FREEUSER.
 
+
+
+
+
 support series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
+
+
 [Standalone]Leona - AutoEQR, AutoEQ, protect ADC/APC/Selected Ally , AutoInterrupt
 [Standalone]Nami - AutoHeal, AutoBuff, AutoUlt, TonsOfSliders, Many Protection options for Allys
 [Standalone]Soraka - Fully AfkSoraka
@@ -17,7 +26,11 @@ support series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Nunu - SmartQWER, Protect Ally, PermaCC on Selected Enemy ( Iceball, Exhaust, FrostQueen)
 
 
+
+
+
 apc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
+
 [Standalone]Brand - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Veigar - Full Combo Supports, every spell configuable, AutoStun to Interrupt ,with Free/Vip/Vpre/Pro
 [Standalone]Zyra - Full Combo Supports, every spell configuable, AutoUlt to Interrupt ,with Free/Vip/Vpre/Pro
@@ -29,7 +42,11 @@ apc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Twisted Fate - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Ryze - Exploits, MMA/SAC Integration, InBuildOrbwalker Finished. Combos 50%, SmartCasting: 0%
 
+
+
+
 adc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
+
 [Standalone]Twich - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
 [Standalone]Caitlyn - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, Trap on Slowed/Stunned Enemys, AutoEscape, AutoOrbwalkSupport
 [Standalone]Ashe - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro
@@ -40,7 +57,10 @@ adc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [Standalone]Ezreal - Full Combo Supports, every spell configuable ,with Free/Vip/Vpre/Pro, AutoOrbwalkSupport(AutoJumpToMouse)
 
 
+
+
 Utility series: Status: INeedVision&LowHanlder&BadAssSupport: Finished. Smartwalker: BuggyAlpha: 70%, GoldCounter: 0%
+
 [Standalone]INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne, AutoWard into Bushes with enemy,
               FullAutoward Mode(Snap Wards to important places if not warded)
               WardTricks (under baron/Drake)
