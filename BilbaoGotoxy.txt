@@ -37,6 +37,18 @@ adc series(with MMA+SAC support, also inbuild orbwalker): Status: Finished
 [PLANNED]Lucian - 
 [PLANNED]Tristana - 
 
+bruiser series(with MMA+SAC support, also inbuild orbwalker): Status: PlanPhase, create rotation/combos/and so on
+[PLANNED]Udyr - 
+[PLANNED]Mundo - 
+[PLANNED]Nasus - 
+[PLANNED]Ileia - 
+[PLANNED]Darius - 
+[PLANNED]Mordekaiser - 
+[PLANNED]Olaf - 
+[PLANNED]Yorick - 
+[PLANNED]Jax - 
+[PLANNED]Shen - 
+
 Utility series: Status: INeedVision&LowHanlder&BadAssSupport: Finished.  Smartwalker: BuggyAlpha: 70%, GoldCounter: 0%
 [Standalone]INeedVision = anti Bush/kha/akali/twich/rengar/talon/vayne, AutoWard into Bushes with enemy,
               FullAutoward Mode(Snap Wards to important places if not warded)
