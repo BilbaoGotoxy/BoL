@@ -1,11 +1,11 @@
-local version = "0.01"
---https://raw.githubusercontent.com/G0t0xy/BoL/master/AutoUpdateTest.lua
+local version = "1.01"
+--https://github.com/G0t0xy/BoL/blob/master/Updater.lua
 
 
 local AUTOUPDATE = true
-local UPDATE_NAME = "AAutoUpdateTest"
+local UPDATE_NAME = "Updater"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/G0t0xy/BoL/master/AAutoUpdateTest.lua".."?rand="..math.random(1,10000)
+local UPDATE_PATH = "/G0t0xy/BoL/master/Updater.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
