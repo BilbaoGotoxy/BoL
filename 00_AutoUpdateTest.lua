@@ -1,4 +1,4 @@
-local version = "0.01"
+local version = "0.02"
 --https://raw.githubusercontent.com/G0t0xy/BoL/master/00_AutoUpdateTest.lua
 local AUTOUPDATE = true
 local UPDATE_NAME = "00_AutoUpdateTest"
