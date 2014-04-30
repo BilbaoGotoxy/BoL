@@ -1,11 +1,11 @@
-local version = "1.01"
---https://raw.githubusercontent.com/G0t0xy/BoL/master/00_AutoUpdateTest.lua
+local version = "0.01"
+--https://raw.githubusercontent.com/G0t0xy/BoL/master/AutoUpdateTest.lua
 
 
 local AUTOUPDATE = true
-local UPDATE_NAME = "00_AutoUpdateTest"
+local UPDATE_NAME = "AAutoUpdateTest"
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/G0t0xy/BoL/master/00_AutoUpdateTest.lua".."?rand="..math.random(1,10000)
+local UPDATE_PATH = "/G0t0xy/BoL/master/AAutoUpdateTest.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
 
@@ -14,9 +14,16 @@ function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>"..UPDATE_NAME.."
 		local ServerData = GetWebResult(UPDATE_HOST, UPDATE_PATH, "", 5)
 		if ServerData then
 			local ServerVersion = string.match(ServerData, "local version = \"%d+.%d+\"")
+			
 			ServerVersion = string.match(ServerVersion and ServerVersion or "", "%d+.%d+")
-			if ServerVersion then
+			if ServerVersion then				
 				ServerVersion = tonumber(ServerVersion)
+				
+				print("normal: "..ServerVersion)
+				print("string: "..tostring(ServerVision))
+				print("number: "..tonumber(ServerVersion))
+				
+				
 				if tonumber(version) < ServerVersion then
 					AutoupdaterMsg("New version available "..ServerVersion)
 					AutoupdaterMsg("Updating, please don't press F9")
