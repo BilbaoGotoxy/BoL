@@ -1,4 +1,4 @@
-local version = "1.01"
+local version = "0.05"
 --https://github.com/G0t0xy/BoL/blob/master/Updater.lua
 
 
@@ -7,7 +7,7 @@ local UPDATE_NAME = "Updater"
 local UPDATE_HOST = "raw.github.com"
 local UPDATE_PATH = "/G0t0xy/BoL/master/Updater.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
-local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
+local UPDATE_URL = "http://"..UPDATE_HOST..UPDATE_PATH
 
 function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>"..UPDATE_NAME..":</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
 	if AUTOUPDATE then
@@ -22,6 +22,7 @@ function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>"..UPDATE_NAME.."
 				print("normal: "..ServerVersion)
 				print("string: "..tostring(ServerVision))
 				print("number: "..tonumber(ServerVersion))
+				print("local ver: "..version)
 				
 				
 				if tonumber(version) < ServerVersion then
@@ -35,4 +36,4 @@ function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>"..UPDATE_NAME.."
 		else
 			AutoupdaterMsg("Error downloading version info")
 		end
-	end
+end
