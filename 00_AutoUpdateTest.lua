@@ -1,4 +1,4 @@
-local version = "1.01"
+local version = "0.03"
 --https://raw.githubusercontent.com/G0t0xy/BoL/master/00_AutoUpdateTest.lua
 
 
