@@ -31,7 +31,8 @@
 		
 	--[[CanUse]]--
 	local Can_VP = false
-	local Can_PRO = false	
+	local Can_PRO = false
+	local Force_End = false
 	--[[/CanUse]]--
 	
 --[[oooooooooooooooooooooooooooo]]--
@@ -60,11 +61,14 @@ if FileExist(LIB_PATH.."MapPosition.lua") then
 		require "MapPosition"
 		require "2DGeometry"
 	else
+		Force_End = true
 		print("<font color='#ff0000'[Critical]: 2DGeometry.lua not found. BilbaoUtilityLibary Aborted!</font>")
 	end
 else
+	Force_End = true
 	print("<font color='#ff0000'[Critical]: MapPosition.lua not found. BilbaoUtilityLibary Aborted!</font>")
 end
+if Force_End then return end
 --[[oooooooooooooooooooooooooooo]]--
 --[[	/CheckExistingFiles		]]--
 --[[oooooooooooooooooooooooooooo]]--
