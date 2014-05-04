@@ -7,7 +7,7 @@
 --[[oooooooooooooooo]]--
 --[[	Globals		]]--
 --[[oooooooooooooooo]]--
-	_G.UseAutoUpdate = true
+	_G.UseAutoUpdate = false
 	_G.UseDebug = true
 	_G.DebugLevel = 1
 --[[oooooooooooooooo]]--
