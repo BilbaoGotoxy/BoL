@@ -31,7 +31,7 @@ spellList = {
 	Crystalize = {charName = "Anivia", spellSlot = "W", range = 1000, width = 400, speed = 1600, delay = .5, spellType = "skillShot", riskLevel = "noDmg", cc = false, hitLineCheck = false},
 	Frostbite = {charName = "Anivia", spellSlot = "E", range = 650, width = 0, speed = 1200, delay = .5, spellType = "enemyCast", riskLevel = "kill", cc = false, hitLineCheck = false},
 	GlacialStorm = {charName = "Anivia", spellSlot = "R", range = 675, width = 400, speed = math.huge, delay = .3, spellType = "skillShot", riskLevel = "extreme", cc = true, hitLineCheck = false},
-	--Annie
+	--Annie 
 	Disintegrate = {charName = "Annie", spellSlot = "Q", range = 710, width = 0, speed = 1400, delay = .5, spellType = "enemyCast", riskLevel = "Kill", cc = false, hitLineCheck = false},
     Incinerate = {charName = "Annie", spellSlot = "W", range = 210, width = 0, speed = 0, delay = .5, spellType = "enemyCast", riskLevel = "Kill", cc = false, hitLineCheck = true},
     MoltenShield = {charName = "Annie", spellSlot = "E", range = 100, width = 0, speed = 20, delay = 0, spellType = "selfCast", rickLevel = "noDmg", cc = false, hitLineCheck = false, aaShieldSlot = _E},
