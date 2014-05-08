@@ -348,8 +348,7 @@ function _load_menu()
 			Menu:addSubMenu("Special", "specl")
 		
 				Menu.specl:addSubMenu("Q-Options", "qopt")
-					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "Q-TargetSelector" })
-					Menu.specl.qopt:addParam("qopt1", "Do if xy then", SCRIPT_PARAM_ONOFF, false)
+					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "Q-TargetSelector" })					
 				
 				Menu.specl:addSubMenu("W-Options", "wopt")
 					Menu.specl.wopt:addParam("wts", "W Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "W-TargetSelector" })
@@ -359,8 +358,7 @@ function _load_menu()
 					Menu.specl.wopt:addParam("wopt2slider", "Attack only if health above",  SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 					
 				Menu.specl:addSubMenu("R-Options", "ropt")
-					Menu.specl.ropt:addParam("rts", "R Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "R-TargetSelector" })
-					Menu.specl.ropt:addParam("ropt1", "Do if xy then", SCRIPT_PARAM_ONOFF, false)
+					Menu.specl.ropt:addParam("rts", "R Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "R-TargetSelector" })				
 
 		-----------------------------------------------------------------------------------------------------
 		
