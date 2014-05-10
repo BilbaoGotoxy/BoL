@@ -439,26 +439,6 @@ end
 --[[/OnProcessSpell]]--
 
 
---[[OnObject]]--
-function OnCreateObj()
-end
-
-
-function OnDeleteObj()
-end
---[[/OnObject]]--
-
-
---[[OnPacket]]--
-function OnRecvPacket()
-end
-
-
-function OnSendPacket()
-end
---[[/OnPacket]]--
-
-
 --[[OnWndMsg]]--
 function OnWndMsg(Msg, Key)
 	if Msg == WM_LBUTTONDOWN then
@@ -575,6 +555,7 @@ function _draw_predDmg()
 	end	
 end
 
+
 function _dmg(spell, target)
 	if Menu.draw.prdraw.visu == 1 then
 		return math.round(getDmg(spell, target, myHero))
@@ -582,6 +563,7 @@ function _dmg(spell, target)
 		return math.round(((getDmg(spell, target, myHero) / target.maxHealth) * 100))
 	end	
 end
+
 
 function GetHPBarPos(enemy)
 	enemy.barData = {PercentageOffset = {x = -0.05, y = 0}}
@@ -758,61 +740,8 @@ end
 
 
 end
---[[
-function cast_pred_TEST()
-local main_cast_pos, MainTarget = nil, nil
-if Menu.specl.qopt.qts == 1 then
-	MainTarget = Target
-else
-	MainTarget = qts.target
-end
-	if Menu.ta.co == 1 then	 --FREEPrediction
-		if MainTarget ~=nil and MainTarget.visible and GetDistance(MainTarget) < Wrange then
-			local Position = FreePredictionW:GetPrediction(MainTarget)
-			if Position ~= nil and GetDistance(Position) < Wrange then
-				main_cast_pos = Position				
-			end		
-		end	
-	end	 --//FREEPrediction
-	if Menu.ta.co == 2 and VIP_USER then --VIPPrediction
-		if MainTarget ~=nil and MainTarget.visible and GetDistance(MainTarget) < Wrange then
-			local Position = VipPredictionW:GetPrediction(MainTarget)
-			if Position ~= nil then
-				main_cast_pos = Position				
-			end		
-		end	
-	end	--//VIPPrediction
-	if Menu.ta.co == 3 and vpredicfile then --VPrediction 	
-			if ValidMainTarget(MainTarget) and not MainTarget.dead and MainTarget.visible and GetDistance(MainTarget) < Wrange then
-				local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(MainTarget, Wdelay, Wwidth, Wrange, Wspeed, myHero, true)
-				if HitChance >= minVPhit and MainTarget.visible and GetDistance(CastPosition) < Wrange then
-					if CastPosition ~= nil then
-						main_cast_pos = CastPosition						
-					end
-				end	
-			end	
-	end--//VPrediction
-	
-	if Menu.ta.co == 4 and prodicfile then
-		if ValidMainTarget(MainTarget) and not MainTarget.dead and MainTarget.visible and GetDistance(MainTarget) < Wrange then
-			main_cast_pos = ProdictionW:GetPrediction(MainTarget)
-
-		end
-	end
-	
-	if w_pos ~= nil and WReady then			
-		_castSpell(_W, main_cast_pos.x, main_cast_pos.z, nil)	
-	end	
 
 
-end
-]]--
-
---[[
-				Menu.specl:addSubMenu("Q-Options", "qopt")
-					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "Q-TargetSelector" })
-					Menu.specl.qopt:addParam("qopt1", "Grab Prio", SCRIPT_PARAM_LIST, 1, { "Defined Target", "BestHitChance" })
-					]]
 function cast_pred_q()
 if not QReady then return end
 local LOCAL_TAR = nil
@@ -823,35 +752,33 @@ elseif ValidTarget(Target, Qrange) and Menu.specl.qopt.qts == 1 then
 elseif ValidTarget(qts.target, Qrange) and Menu.specl.qopt.qts == 2 then
 	LOCAL_TAR = qts.target
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end   ---EDIT RANGE
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end
 MarkIt = LOCAL_TAR
-	if Menu.ta.co == 1 then	 --FREEPrediction
+	if Menu.ta.co == 1 then
 		if LOCAL_TAR ~=nil and LOCAL_TAR.visible then
 			local Position = FreePredictionQ:GetPrediction(LOCAL_TAR)
 			if Position ~= nil and GetDistance(Position) < Qrange then
 				main_cast_pos = Position				
 			end		
 		end	
-	end	 --//FREEPrediction
-	if Menu.ta.co == 2 and VIP_USER then --VIPPrediction
+	end
+	if Menu.ta.co == 2 and VIP_USER then
 		if LOCAL_TAR ~=nil and LOCAL_TAR.visible then
 			local Position = VipPredictionQ:GetPrediction(LOCAL_TAR)
 			if Position ~= nil then
 				main_cast_pos = Position				
 			end		
 		end	
-	end	--//VIPPrediction
-	if Menu.ta.co == 3 and vpredicfile then --VPrediction
-		if Menu.specl.qopt.qopt1 == 1 then
-			--ts target
+	end
+	if Menu.ta.co == 3 and vpredicfile then
+		if Menu.specl.qopt.qopt1 == 1 then			
 			if ValidTarget(LOCAL_TAR, 1500) then
 				local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(LOCAL_TAR, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
 				if HitChance >= minVPhit and GetDistance(CastPosition) < Qrange then
 					main_cast_pos = CastPosition
 				end
 			end
-		elseif Menu.specl.qopt.qopt1 == 2 then
-			--best hit chance
+		elseif Menu.specl.qopt.qopt1 == 2 then		
 			local BestTargetUnit, BestTargetHit, BestTargetCP = nil, -5, nil
 			for i, enemy in ipairs(GetEnemyHeroes()) do
 				if ValidTarget(enemy, 1500) then
@@ -867,11 +794,7 @@ MarkIt = LOCAL_TAR
 		end
 	end
 	if Menu.ta.co == 4 and prodicfile then
-		--if ValidMainTarget(MainTarget) and not MainTarget.dead and MainTarget.visible and GetDistance(MainTarget) < Wrange then
-		--	main_cast_pos = ProdictionW:GetPrediction(MainTarget)
-		--end
-		if Menu.specl.qopt.qopt1 == 1 then
-			--ts target
+		if Menu.specl.qopt.qopt1 == 1 then	
 			if ValidTarget(LOCAL_TAR, 1500) then
 				local calcPos = ProdictionQ:GetPrediction(LOCAL_TAR)
 				local coll = Collision(Qrange, Qspeed, Qdelay, Qwidth)
@@ -879,8 +802,7 @@ MarkIt = LOCAL_TAR
 					main_cast_pos = calcPos
 				end
 			end
-		elseif Menu.specl.qopt.qopt1 == 2 then
-			--best hit chance
+		elseif Menu.specl.qopt.qopt1 == 2 then		
 			local BestTargetUnit, BestTargetDist, BestTargetCP = nil, 50000, nil
 			for i, enemy in ipairs(GetEnemyHeroes()) do
 				if ValidTarget(enemy, 1500) then
@@ -907,11 +829,7 @@ MarkIt = LOCAL_TAR
 
 end
 
---[[
-				Menu.specl:addSubMenu("W-Options", "wopt")					
-					Menu.specl.wopt:addParam("wopt1", "Range to collect",  SCRIPT_PARAM_SLICE, 250, 0, 1000, 0)
-					Menu.specl.wopt:addParam("wopt2", "Enemys to count",  SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
-]]
+
 function cast_pred_w()
 if not WReady then return end
 if not WReady then return end
@@ -923,10 +841,7 @@ if EnemyInMyRange >= Menu.specl.wopt.wopt2 then
 end
 end
 
---[[
-					Menu.specl.eopt:addParam("ets", "E Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "E-TargetSelector" })
-					Menu.specl.eopt:addParam("eopt1", "KnockUp Prio", SCRIPT_PARAM_LIST, 1, { "Defined Target", "OnCD" })
-					]]
+
 function cast_pred_e()
 if not EReady then return end
 local LOCAL_TAR = nil
@@ -937,7 +852,7 @@ elseif ValidTarget(Target, 210) and Menu.specl.eopt.ets == 1 then
 elseif ValidTarget(ets.target, 210) and Menu.specl.eopt.ets == 2 then
 	LOCAL_TAR = ets.target
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Erange) then return end   ---EDIT RANGE
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Erange) then return end
 MarkIt = LOCAL_TAR
 
 if Menu.specl.eopt.eopt1 == 1 then
@@ -971,7 +886,7 @@ elseif ValidTarget(Target, Rrange) and Menu.specl.ropt.rts == 1 then
 elseif ValidTarget(rts.target, Rrange) and Menu.specl.ropt.rts == 2 then
 	LOCAL_TAR = rts.target
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Rrange) then return end   ---EDIT RANGE
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Rrange) then return end
 MarkIt = LOCAL_TAR
 if ValidTarget(LOCAL_TAR, Rrange) then
 	_castSpell(_R, myHero.x, myHero.z, nil)	
