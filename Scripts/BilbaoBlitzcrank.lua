@@ -8,7 +8,7 @@ local AllowAutoUpdate = true
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.1
+local CurVer = 0.2
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -411,10 +411,10 @@ function _setimpdef()
 end
 
 
-function _initiateTS() -- DAMAGE_MAGIC or DAMAGE_PHYSICAL
+function _initiateTS()
 	MyMinionManager = minionManager(MINION_ALL, 50000)
 	
-	qts = TargetSelector(TARGET_LOW_HP, Qrange, DAMAGE_PHYSICAL)
+	qts = TargetSelector(TARGET_LOW_HP, Qrange, DAMAGE_MAGIC)
 	qts.name = "Q Target"
 	Menu.specl.qopt:addTS(qts)
 
@@ -422,7 +422,7 @@ function _initiateTS() -- DAMAGE_MAGIC or DAMAGE_PHYSICAL
 	ets.name = "E Target"
 	Menu.specl.eopt:addTS(ets)
 
-	rts = TargetSelector(TARGET_LOW_HP, Rrange, DAMAGE_PHYSICAL)
+	rts = TargetSelector(TARGET_LOW_HP, Rrange, DAMAGE_MAGIC)
 	rts.name = "R Target"
 	Menu.specl.ropt:addTS(rts)
 
