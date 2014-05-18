@@ -1,4 +1,4 @@
- if myHero.charName ~= "Alistar" then return end
+if myHero.charName ~= "Alistar" then return end
 --[[       ------------------------------------------       ]]--
 --[[				BilbaoAlistar by Bilbao					]]--
 --[[       ------------------------------------------       ]]--
@@ -354,7 +354,6 @@ function AddProtectionMenu()
 		Menu.prot:addParam("selec", "Protect Allys", SCRIPT_PARAM_ONOFF, false)
 		Menu.prot:addParam("useq", "Use Q", SCRIPT_PARAM_ONOFF, false)
 		Menu.prot:addParam("usew", "Use W", SCRIPT_PARAM_ONOFF, false)
-		Menu.prot:addParam("usew", "Use E", SCRIPT_PARAM_ONOFF, false)
 		Menu.prot:addParam("portkey", "Protect Main Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
 		Menu.prot:addParam("portkey2", "Protect Team in Order", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("B"))
 		Menu.prot:addParam("slider", "Range to protect",  SCRIPT_PARAM_SLICE, 50, 0, 1000, 0)
@@ -365,6 +364,98 @@ function AddProtectionMenu()
 			for i, enemy in ipairs(GetEnemyHeroes()) do
 				Menu.prot.ign:addParam(enemy.charName, enemy.charName, SCRIPT_PARAM_ONOFF, false)
 			end
+end
+
+function _protect()
+if not Menu.prot.selec then return end
+if not (Menu.prot.portkey or Menu.prot.portkey2) then return end
+
+local GoAwayQ = {target = nil, status = 5}
+local GoAwayR = {target = nil, status = 5}
+local GoAwayW = {target = nil, status = 5}
+
+	for i, ally in ipairs(GetAllyHeroes()) do
+		if ally.visible and not ally.dead then
+		
+			if Menu.prot[ally.charName] == 1 and (Menu.prot.portkey or Menu.prot.portkey2) then
+				local NextTo = _GetNextEnemyTo(ally)
+				if NextTo ~= nil and ValidTarget(NextTo, Qrange) and Menu.prot.useq then				
+					GoAwayQ.target = NextTo
+					GoAwayQ.status = 1						
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Wrange) and Menu.prot.usew then				
+					GoAwayW.target = NextTo
+					GoAwayW.status = 1						
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Rrange) and Menu.prot.user then				
+					GoAwayR.target = NextTo
+					GoAwayR.status = 1					
+				end	
+
+			elseif Menu.prot[ally.charName] == 2  then
+				if NextTo ~= nil and ValidTarget(NextTo, Qrange) and Menu.prot.useq and GoAwayQ.status < 2 then				
+					GoAwayQ.target = NextTo
+					GoAwayQ.status = 2				
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Wrange) and Menu.prot.usew then				
+					GoAwayW.target = NextTo
+					GoAwayW.status = 1						
+				end				
+				if NextTo ~= nil and ValidTarget(NextTo, Rrange) and Menu.prot.user and GoAwayR.status < 2  then				
+					GoAwayR.target = NextTo
+					GoAwayR.status = 2					
+				end	
+
+			elseif Menu.prot[ally.charName] == 3 then
+				if NextTo ~= nil and ValidTarget(NextTo, Qrange) and Menu.prot.useq and GoAwayQ.status < 3 then				
+					GoAwayQ.target = NextTo
+					GoAwayQ.status = 3
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Wrange) and Menu.prot.usew then				
+					GoAwayW.target = NextTo
+					GoAwayW.status = 1						
+				end				
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Rrange) and Menu.prot.user and GoAwayR.status < 3  then				
+					GoAwayR.target = NextTo
+					GoAwayR.status = 3
+				end
+			elseif Menu.prot[ally.charName] == 4 then
+				if NextTo ~= nil and ValidTarget(NextTo, Qrange) and Menu.prot.useq and GoAwayQ.status < 4 then				
+					GoAwayQ.target = NextTo
+					GoAwayQ.status = 4
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Wrange) and Menu.prot.usew then				
+					GoAwayW.target = NextTo
+					GoAwayW.status = 1						
+				end
+				
+				if NextTo ~= nil and ValidTarget(NextTo, Rrange) and Menu.prot.user and GoAwayR.status < 4  then				
+					GoAwayR.target = NextTo
+					GoAwayR.status = 4
+				end
+
+			end
+			
+		end
+	end	
+
+	
+	
+	if GoAwayQ.status < 5 and ValidTarget(GoAwayQ.target, Qrange) and QReady then
+		_castSpell(_Q, myHero.x, myHero.z, nil)
+	end
+	
+	
+	
+	if GoAwayW.status < 5 and ValidTarget(GoAwayW.target, Wrange) and WReady then		
+		_castSpell(_W, nil,nil, GoAwayW.target)		
+	end	
 end
 
 
@@ -619,7 +710,8 @@ function OnTick()
 	Reset()
 	_check_mmasac()	
 	if not myHero.dead then
-		_update()	
+		_update()
+		_protect()
 		_smartcore()
 	end	
 end
