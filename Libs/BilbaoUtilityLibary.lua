@@ -138,7 +138,7 @@ class 'BULCasting'
 --[[
 	BULCasting:__init(id, range, width, speed, delay, [sequence], [packets])
 	BULCasting:Cast([delay])
-	FSLSpells:Cast(Target, Predict, CheckCollision)
+	BULSpells:Cast(Target, Predict, CheckCollision)
 ]]--
 
 class 'BULFarm'
