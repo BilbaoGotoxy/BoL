@@ -8,7 +8,7 @@ local AllowAutoUpdate = true
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.2
+local CurVer = 0.3
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -95,7 +95,7 @@ end
 	local Qrange, Qwidth, Qspeed, Qdelay = 825, 250, 850, 0.5	
 	local Wrange, Wwidth, Wspeed, Wdelay = 800, 40, 650, 0.15	
 	local Erange, Ewidth, Espeed, Edelay = 585, 100, 1750, 0.5	
-	local Rrange, Rwidth, Rspeed, Rdelay = 1225, 40, 825, 0.5
+	local Rrange, Rwidth, Rspeed, Rdelay = 1150, 20, 2000, 0.174
 	
 	local QReady, WReady, EReady, RReady = false, false, false, false
 	local canQhrs, canWhrs, canEhrs, canRhrs = false, false, false, false
