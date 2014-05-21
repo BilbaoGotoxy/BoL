@@ -5,6 +5,7 @@ if myHero.charName ~= "Blitzcrank" then return end
 
 --[[The only think where you are allowed to change smth]]--
 local AllowAutoUpdate = true
+local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
@@ -34,6 +35,7 @@ end
 function UpdateScript()
 	if Do_Once then	
 		Do_Once = false
+		DownloadAll()
 		if _G.UseUpdater == nil or _G.UseUpdater == true then 			
 			GetAsyncWebResult("bilbao.lima-city.de", ScriptName.."ver.txt", CheckVersion)			
 		end
@@ -97,10 +99,10 @@ end
 
 
 	-------Skills info-------	
-	local Qrange, Qwidth, Qspeed, Qdelay = 1000, 70, 1800, 0.25	
+	local Qrange, Qwidth, Qspeed, Qdelay = 1040, 70, 1820, 0.23
 	local Wrange, Wwidth, Wspeed, Wdelay = 1, 1, 7777, 0.25	
 	local Erange, Ewidth, Espeed, Edelay = 250, 1, 7777, 0.25	
-	local Rrange, Rwidth, Rspeed, Rdelay = 600, 600, 7777, 0.25
+	local Rrange, Rwidth, Rspeed, Rdelay = 1, 600, 7777, 0.25
 	
 	local QReady, WReady, EReady, RReady = false, false, false, false
 	local canQhrs, canWhrs, canEhrs, canRhrs = false, false, false, false
@@ -131,7 +133,11 @@ end
 	local Target = nil
 	local SelectedTarget
 	local MyMinionManager = nil
-	local MarkIt
+	local MarkIt, QMark, QMCP
+	local QCD = false
+	local forced = false
+	local ManQHit, ManQTextUnit
+	local ManQTar
 	-------/Target info-------
 	
 	
@@ -139,6 +145,10 @@ end
 	local abilitylvl = 0
 	local lvlsequence = 1 
 	-------/Autolvl info-------
+
+	
+	
+	
 	
 	-------Interuptions-------
 	local LastCastedSpell = {}
@@ -165,7 +175,6 @@ end
 		{name = "ZacR", menuname = "Zac (R)"}
 	}
 	-------/Interuptions-------
-
 	
 	
 	
@@ -175,23 +184,23 @@ end
 
 
 --[OnLoad]--
-function OnLoad()	
+function OnLoad()
+	Debug("OnLoad")
 	starttick = GetTickCount()
 	_loadP()
 	_loadSOW()
 	_load_menu()
 	_initiateTS()
-	MyBasicRange = myHero.range + (GetDistance(myHero.minBBox) - 7)
+	MyBasicRange = myHero.range + (GetDistance(myHero.minBBox) - 3)
 	PrintChat("<font color='#40FF00'> >> "..ScriptName.." v."..CurVer.." - loaded</font>")
 end
 
 
 function _loadP()
-	if prodicfile then
+	if prodicfile and VIP_USER then
 		Prodiction = ProdictManager.GetInstance()
-		ProdictionQ = Prodiction:AddProdictionObject(_Q, Qrange, Qspeed, Qdelay, Qwidth) 
-		ProdictionE = Prodiction:AddProdictionObject(_E, Erange, Espeed, Edelay, Ewidth) 
-		ProdictionR = Prodiction:AddProdictionObject(_R, Rrange, Rspeed, Rdelay, Rwidth) 		
+		ProdictionQ = Prodiction:AddProdictionObject(_Q, Qrange, Qspeed, Qdelay, Qwidth)
+		QCOLL = Collision(Qrange, Qspeed, Qdelay, Qwidth)
 	end
 	
 	
@@ -202,12 +211,8 @@ function _loadP()
 	
 	if VIP_USER then
 		VipPredictionQ = TargetPredictionVIP(Qrange, Qspeed, Qdelay, Qwidth, myHero) 
-		VipPredictionE = TargetPredictionVIP(Erange, Espeed, Edelay, Ewidth, myHero) 
-		VipPredictionR = TargetPredictionVIP(Rrange, Rspeed, Rdelay, Rwidth, myHero) 
 	end	
 		FreePredictionQ = TargetPrediction(Qrange, (Qspeed / 1000), (Qdelay * 1000), Qwidth)
-		FreePredictionE = TargetPrediction(Erange, (Espeed / 1000), (Edelay * 1000), Ewidth)
-		FreePredictionR = TargetPrediction(Rrange, (Rspeed / 1000), (Rdelay * 1000), Rwidth)	
 end
 
 
@@ -219,6 +224,7 @@ end
 
 
 function _load_menu()
+	Debug("Load Menu")
 	Menu = scriptConfig(""..ScriptName, "bilbao")  	
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Drawing", "draw")
@@ -235,7 +241,11 @@ function _load_menu()
 				Menu.draw.prdraw:addParam("markcolor", "--> Mark Color", SCRIPT_PARAM_COLOR, {141, 124, 4, 4})
 				Menu.draw.prdraw:addParam("info2", " ", SCRIPT_PARAM_INFO, "")				
 				Menu.draw.prdraw:addParam("enemyline", "Line2Enemy", SCRIPT_PARAM_ONOFF, true)
-				Menu.draw.prdraw:addParam("linecolor", "--> Line Color", SCRIPT_PARAM_COLOR, {141, 124, 4, 4})			
+				Menu.draw.prdraw:addParam("linecolor", "--> Line Color", SCRIPT_PARAM_COLOR, {141, 124, 4, 4})
+				Menu.draw.prdraw:addParam("info2", " ", SCRIPT_PARAM_INFO, "")
+				Menu.draw.prdraw:addParam("collision", "Show Q Collision", SCRIPT_PARAM_ONOFF, true)
+				Menu.draw.prdraw:addParam("collision2", "Show Q Target", SCRIPT_PARAM_ONOFF, true)
+				Menu.draw.prdraw:addParam("collision3", "Q Color", SCRIPT_PARAM_COLOR, {141, 124, 4, 4})
 		-----------------------------------------------------------------------------------------------------
 				
 		
@@ -248,7 +258,15 @@ function _load_menu()
 					Menu.draw.drawsub2:addParam("drawQ", "Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
 					Menu.draw.drawsub2:addParam("qcolor", "--> Q Range Color", SCRIPT_PARAM_COLOR, {141, 5, 247, 217})
 					Menu.draw.drawsub2:addParam("info2", " ", SCRIPT_PARAM_INFO, "")
-										
+					
+					Menu.draw.drawsub2:addParam("drawW", "Draw W-Range", SCRIPT_PARAM_ONOFF, true)
+					Menu.draw.drawsub2:addParam("wcolor", "--> W Range Color", SCRIPT_PARAM_COLOR, {141, 7, 7, 247})
+					Menu.draw.drawsub2:addParam("info2", " ", SCRIPT_PARAM_INFO, "")
+					
+					Menu.draw.drawsub2:addParam("drawE", "Draw E-Range", SCRIPT_PARAM_ONOFF, true)
+					Menu.draw.drawsub2:addParam("ecolor", "--> E Range Color", SCRIPT_PARAM_COLOR, {141, 212, 12, 223})
+					Menu.draw.drawsub2:addParam("info3", " ", SCRIPT_PARAM_INFO, "")
+					
 					Menu.draw.drawsub2:addParam("drawR", "Draw R-Range", SCRIPT_PARAM_ONOFF, true)
 					Menu.draw.drawsub2:addParam("rcolor", "--> R Range Color", SCRIPT_PARAM_COLOR, {141, 247, 247, 0})
 					Menu.draw.drawsub2:addParam("info4", " ", SCRIPT_PARAM_INFO, "")					
@@ -370,24 +388,41 @@ function _load_menu()
 			Menu:addSubMenu("Special", "specl")
 		
 				Menu.specl:addSubMenu("Q-Options", "qopt")
-					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "Q-TargetSelector" })
-					Menu.specl.qopt:addParam("qopt1", "Grab Prio", SCRIPT_PARAM_LIST, 1, { "Defined Target", "BestHitChance" })
+					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "GrabPrio" })
+					Menu.specl.qopt:addParam("qopt1", "Grab Prio", SCRIPT_PARAM_LIST, 1, { "Q-TargetSelector", "BestHitChance" })
+					
+				Menu.specl:addSubMenu("Q-Manual", "qman")
+					Menu.specl.qman:addParam("force", "Force Selected", SCRIPT_PARAM_ONOFF, false)
+					Menu.specl.qman:addParam("move", "Movement", SCRIPT_PARAM_LIST, 1, { "ToMouse", "ToSelected", "NoMovement" })
+					Menu.specl.qman:addParam("grab", "THE KEY", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("N"))
+					Menu.specl.qman:addParam("showhit", "Show Hitchance", SCRIPT_PARAM_ONOFF, false)
+					
+				Menu.specl:addSubMenu("Q-Ignore", "ignore")
+					Menu.specl.ignore:addParam("info", "Ignore: ", SCRIPT_PARAM_INFO, "")
+					for i, enemy in ipairs(GetEnemyHeroes()) do
+						Menu.specl.ignore:addParam(enemy.charName, enemy.charName, SCRIPT_PARAM_ONOFF, false)
+					end
 				
 				Menu.specl:addSubMenu("W-Options", "wopt")					
-					Menu.specl.wopt:addParam("wopt1", "Range to collect",  SCRIPT_PARAM_SLICE, 250, 0, 1000, 0)
-					Menu.specl.wopt:addParam("wopt2", "Enemys to count",  SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+					Menu.specl.wopt:addParam("range", "Range to collect",  SCRIPT_PARAM_SLICE, 250, 1, 1000, 0)
+					Menu.specl.wopt:addParam("enemy", "Enemys to count",  SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
 					
 				Menu.specl:addSubMenu("E-Options", "eopt")
 					Menu.specl.eopt:addParam("ets", "E Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "E-TargetSelector" })
 					Menu.specl.eopt:addParam("eopt1", "KnockUp Prio", SCRIPT_PARAM_LIST, 1, { "Defined Target", "OnCD" })
 
 				Menu.specl:addSubMenu("R-Options", "ropt")
-					Menu.specl.ropt:addParam("rts", "R Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "R-TargetSelector" })
+					Menu.specl.ropt:addParam("ks", "Kill Secure", SCRIPT_PARAM_ONOFF, false)
+					Menu.specl.ropt:addParam("limit", "Limit R", SCRIPT_PARAM_ONOFF, false)
+					Menu.specl.ropt:addParam("ropt2sliderrange", "Count Range",  SCRIPT_PARAM_SLICE, 500, 1, 600, 0)
+					Menu.specl.ropt:addParam("ropt2sliderenemy", "AutoCastR if",  SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
+					
 					
 				Menu.specl:addSubMenu("Auto Interrupt", "autointer")
 					for i, spell in pairs(spells) do
 						Menu.specl.autointer:addParam(spell.name, spell.menuname, SCRIPT_PARAM_ONOFF, true)
 					end
+
 				Menu.specl:addParam("selec", "Prefer selected Target.", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
 		
@@ -399,6 +434,7 @@ function _load_menu()
 		
 		
 		_setimpdef()
+		Debug("Menu Loaded.")
 end
 
 
@@ -422,21 +458,38 @@ function _initiateTS()
 	ets.name = "E Target"
 	Menu.specl.eopt:addTS(ets)
 
-	rts = TargetSelector(TARGET_LOW_HP, Rrange, DAMAGE_MAGIC)
-	rts.name = "R Target"
-	Menu.specl.ropt:addTS(rts)
 
 end
 --[/OnLoad]--
 
 
 --[[OnProcessSpell]]--
-function OnProcessSpell(unit, spell)
-	if unit.team ~= myHero.team and unit.type == myHero.type then
-		LastCastedSpell[unit.networkID] = {name = spell.name:lower(), time = os.clock(), caster = unit}
+function OnProcessSpell(object, spell)
+	if object.team ~= myHero.team and object.type == myHero.type then
+		LastCastedSpell[object.networkID] = {name = spell.name:lower(), time = os.clock(), caster = object}
 	end
 end
 --[[/OnProcessSpell]]--
+
+
+--[[OnObject]]--
+function OnCreateObj()
+end
+
+
+function OnDeleteObj()
+end
+--[[/OnObject]]--
+
+
+--[[OnPacket]]--
+function OnRecvPacket()
+end
+
+
+function OnSendPacket()
+end
+--[[/OnPacket]]--
 
 
 --[[OnWndMsg]]--
@@ -488,7 +541,17 @@ function _draw_ranges()
 			DrawCircle(myHero.x, myHero.y, myHero.z, Qrange, ARGB(Menu.draw.drawsub2.qcolor[1], Menu.draw.drawsub2.qcolor[2], Menu.draw.drawsub2.qcolor[3], Menu.draw.drawsub2.qcolor[4]))	
 		end
 		
-
+		
+		if Menu.draw.drawsub2.drawW and WReady then
+			DrawCircle(myHero.x, myHero.y, myHero.z, Wrange, ARGB(Menu.draw.drawsub2.wcolor[1], Menu.draw.drawsub2.wcolor[2], Menu.draw.drawsub2.wcolor[3], Menu.draw.drawsub2.wcolor[4]))
+		end
+		
+		
+		if Menu.draw.drawsub2.drawE and EReady then
+			DrawCircle(myHero.x, myHero.y, myHero.z, Erange, ARGB(Menu.draw.drawsub2.ecolor[1], Menu.draw.drawsub2.ecolor[2], Menu.draw.drawsub2.ecolor[3], Menu.draw.drawsub2.ecolor[4]))
+		end
+		
+		
 		if Menu.draw.drawsub2.drawR and RReady then
 			DrawCircle(myHero.x, myHero.y, myHero.z, Rrange, ARGB(Menu.draw.drawsub2.rcolor[1], Menu.draw.drawsub2.rcolor[2], Menu.draw.drawsub2.rcolor[3], Menu.draw.drawsub2.rcolor[4]))	
 		end
@@ -496,24 +559,44 @@ end
 
 
 function _draw_tarinfo()
-	if not ValidTarget(Target) then return end
-	local p = WorldToScreen(D3DXVECTOR3(Target.x, Target.y, Target.z))
-	if not OnScreen(p.x, p.y) then return end
-	
-	
-		if Menu.draw.prdraw.enemyline and Target.visible and not Target.dead then		
-			DrawLine3D(myHero.x, myHero.y, myHero.z, Target.x, Target.y, Target.z, 1, ARGB(250,235,33,33))
-		end	
+if ManQTar ~= nil and not ManQTar.dead and Menu.specl.qman.showhit then DrawText3D(""..ManQHit, ManQTar.x, ManQTar.y, ManQTar.z, 30, ARGB(255, 255, 255, 255), true) end
+
+	if ValidTarget(QMark) then
+		if Menu.draw.prdraw.collision and not VIP_USER and QReady then
+			DrawLine3D(myHero.x, myHero.y, myHero.z, QMark.x, QMark.y, QMark.z, 70, ARGB(Menu.draw.prdraw.collision3[1],Menu.draw.prdraw.collision3[2],Menu.draw.prdraw.collision3[3],Menu.draw.prdraw.collision3[4]) )
+		end
 		
+		if Menu.draw.prdraw.collision2 and QReady then
+			for o=1, 70, 7 do
+				DrawCircle(QMark.x, QMark.y, QMark.z, o, ARGB(Menu.draw.prdraw.collision3[1],Menu.draw.prdraw.collision3[2],Menu.draw.prdraw.collision3[3],Menu.draw.prdraw.collision3[4]))
+			end
+		end
 		
-		if Menu.draw.prdraw.enemy and Target.visible and not Target.dead then			
+	if QMCP~= nil and QReady then QCOLL:DrawCollision(myHero, QMCP) end
+	end
+	
+		
+	if ValidTarget(Target) then
+		local p = WorldToScreen(D3DXVECTOR3(Target.x, Target.y, Target.z))
+		if OnScreen(p.x, p.y) then
+			if Menu.draw.prdraw.enemyline and Target.visible and not Target.dead then		
+				DrawLine3D(myHero.x, myHero.y, myHero.z, Target.x, Target.y, Target.z, 1, ARGB(Menu.draw.prdraw.linecolor[1],Menu.draw.prdraw.linecolor[2],Menu.draw.prdraw.linecolor[3],Menu.draw.prdraw.linecolor[4]))
+			end	
+			
+			
+			if Menu.draw.prdraw.enemy and Target.visible and not Target.dead then			
 			    for j=1, 25 do
                         local ycircle = (j*(120/25*2)-120)
                         local r = math.sqrt(120^2-ycircle^2)
                         ycircle = ycircle/1.3
-                        DrawCircle(Target.x, Target.y+100+ycircle, Target.z, r, ARGB(250,235,33,33))
+                        DrawCircle(Target.x, Target.y+100+ycircle, Target.z, r, ARGB(Menu.draw.prdraw.markcolor[1],Menu.draw.prdraw.markcolor[2],Menu.draw.prdraw.markcolor[3],Menu.draw.prdraw.markcolor[4]))
 				end		
-		end	
+			end	
+		end
+	end
+	
+	
+	
 end
 
 
@@ -523,31 +606,16 @@ function _draw_predDmg()
 	local dmgtyp = ""
 	if Menu.draw.prdraw.visu == 2 then dmgtyp = "%" end
 				
+				
 	for i, enemy in ipairs(GetEnemyHeroes()) do		
 		if enemy ~= nil and not enemy.dead and enemy.visible then		
 			if QReady then
 				DrawLineHPBar(_dmg("Q", enemy), currLine, "Q: ".._dmg("Q", enemy)..dmgtyp, enemy, true)
 				currLine = currLine + 1
 			end	
-			if EReady then
-				DrawLineHPBar(_dmg("E", enemy), currLine, "E: ".._dmg("E", enemy)..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			end
+
 			if RReady then
 				DrawLineHPBar(_dmg("R", enemy), currLine, "R: ".._dmg("R", enemy)..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			end
-			if QReady and EReady and RReady then
-				DrawLineHPBar((_dmg("Q", enemy)+_dmg("E", enemy)+_dmg("R", enemy)), currLine, "QER: "..(_dmg("Q", enemy)+_dmg("E", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			elseif QReady and Eready and not RReady then
-				DrawLineHPBar((_dmg("Q", enemy)+_dmg("E", enemy)), currLine, "QE: "..(_dmg("Q", enemy)+_dmg("E", enemy))..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			elseif RReady and QReady and not EReady then
-					DrawLineHPBar((_dmg("Q", enemy)+_dmg("R", enemy)), currLine, "QR: "..(_dmg("Q", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
-					currLine = currLine + 1
-			elseif RReady and EReady and not QReady then
-				DrawLineHPBar((_dmg("E", enemy)+_dmg("R", enemy)), currLine, "ER: "..(_dmg("E", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
 				currLine = currLine + 1
 			end
 
@@ -555,15 +623,15 @@ function _draw_predDmg()
 	end	
 end
 
-
 function _dmg(spell, target)
 	if Menu.draw.prdraw.visu == 1 then
 		return math.round(getDmg(spell, target, myHero))
 	elseif Menu.draw.prdraw.visu == 2 then
 		return math.round(((getDmg(spell, target, myHero) / target.maxHealth) * 100))
 	end	
-end
 
+	
+end
 
 function GetHPBarPos(enemy)
 	enemy.barData = {PercentageOffset = {x = -0.05, y = 0}}
@@ -572,9 +640,9 @@ function GetHPBarPos(enemy)
 	local barOffset = { x = enemy.barData.PercentageOffset.x, y = enemy.barData.PercentageOffset.y }
 	local barPosPercentageOffset = { x = enemy.barData.PercentageOffset.x, y = enemy.barData.PercentageOffset.y }
 	local BarPosOffsetX = -50
-	local BarPosOffsetY = 46
-	local CorrectionY = 39
-	local StartHpPos = 31
+	local BarPosOffsetY = 46 
+	local CorrectionY = 39 
+	local StartHpPos = 31 
 
 	barPos.x = math.floor(barPos.x + (barPosOffset.x - 0.5 + barPosPercentageOffset.x) * BarPosOffsetX + StartHpPos)
 	barPos.y = math.floor(barPos.y + (barPosOffset.y - 0.5 + barPosPercentageOffset.y) * BarPosOffsetY + CorrectionY)
@@ -644,8 +712,9 @@ function OnTick()
 	Reset()
 	_check_mmasac()	
 	if not myHero.dead then
-		_update()	
+		_update()
 		autointer()
+		ksecurer()
 		_smartcore()
 	end	
 end
@@ -655,7 +724,6 @@ function _update()
 	MyMinionManager:update()
 	qts:update()
 	ets:update()
-	rts:update()	
 	
 	if vpredicfile then minVPhit = Menu.ta.vphit - 1 end
 	
@@ -681,11 +749,13 @@ end
 
 
 function _smartcore()
+ManualQ()
 
-if (Menu.keys.permrota or Menu.keys.okdrota) then
 			if Menu.rota.useQ and canQrota and QReady then
 				cast_pred_q()	
 			end
+			
+if (Menu.keys.permrota or Menu.keys.okdrota) then
 			
 			if Menu.rota.useW and canWrota and WReady then
 				cast_pred_w()	
@@ -742,91 +812,214 @@ end
 end
 
 
-function cast_pred_q()
-if not QReady then return end
-local LOCAL_TAR = nil
-if ValidTarget(SelectedTarget, Qrange) and Menu.specl.selec then
-	LOCAL_TAR = SelectedTarget
-elseif ValidTarget(Target, Qrange) and Menu.specl.qopt.qts == 1 then
-	LOCAL_TAR = Target
-elseif ValidTarget(qts.target, Qrange) and Menu.specl.qopt.qts == 2 then
-	LOCAL_TAR = qts.target
+function ManualQ()
+local tmp_tar = GetTarget()
+if ManQTar ~= nil and ManQTar.dead then ManQTar = nil end
+
+if ValidTarget(tmp_tar) and tmp_tar ~= ManQTar then
+	ManQTar = tmp_tar
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end
-MarkIt = LOCAL_TAR
-	if Menu.ta.co == 1 then
-		if LOCAL_TAR ~=nil and LOCAL_TAR.visible then
-			local Position = FreePredictionQ:GetPrediction(LOCAL_TAR)
-			if Position ~= nil and GetDistance(Position) < Qrange then
-				main_cast_pos = Position				
-			end		
-		end	
+local ManQTextUnit = ManQTar
+local main_cast_pos = nil
+if ValidTarget(ManQTar) and Menu.specl.qman.force then
+	forced = true
+else
+	forced = false
+end
+if ManQTar == nil or ManQTar.dead then return end
+if Menu.specl.qman.grab and GetDistance(ManQTar) > 990 and not ManQTar.dead then
+	if Menu.specl.qman.move == 1 then
+		myHero:MoveTo(mousePos.x, mousePos.z)
+	elseif Menu.specl.qman.move == 2 then
+		myHero:MoveTo(ManQTar.x, ManQTar.z)
 	end
-	if Menu.ta.co == 2 and VIP_USER then
-		if LOCAL_TAR ~=nil and LOCAL_TAR.visible then
-			local Position = VipPredictionQ:GetPrediction(LOCAL_TAR)
+end
+
+	if Menu.ta.co == 1 then
+		if ManQTar ~= nil and ManQTar.visible then
+			local Position = FreePredictionQ:GetPrediction(ManQTar)
 			if Position ~= nil then
 				main_cast_pos = Position				
 			end		
 		end	
 	end
-	if Menu.ta.co == 3 and vpredicfile then
-		if Menu.specl.qopt.qopt1 == 1 then			
-			if ValidTarget(LOCAL_TAR, 1500) then
-				local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(LOCAL_TAR, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
-				if HitChance >= minVPhit and GetDistance(CastPosition) < Qrange then
-					main_cast_pos = CastPosition
-				end
-			end
-		elseif Menu.specl.qopt.qopt1 == 2 then		
-			local BestTargetUnit, BestTargetHit, BestTargetCP = nil, -5, nil
-			for i, enemy in ipairs(GetEnemyHeroes()) do
-				if ValidTarget(enemy, 1500) then
-					local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(enemy, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
-					if HitChance >= minVPhit and GetDistance(CastPosition) < Qrange and HitChance >= BestTargetHit then
-						BestTargetHit = HitChance
-						BestTargetUnit = enemy
-						BestTargetCP = CastPosition
-					end
-				end
-			end
-			main_cast_pos = BestTargetCP
-		end
+
+	
+	if Menu.ta.co == 2 and VIP_USER then
+		if ManQTar ~= nil and ManQTar.visible then
+			local Position = VipPredictionQ:GetPrediction(ManQTar)
+			if Position ~= nil then
+				main_cast_pos = Position				
+			end		
+		end	
 	end
-	if Menu.ta.co == 4 and prodicfile then
-		if Menu.specl.qopt.qopt1 == 1 then	
-			if ValidTarget(LOCAL_TAR, 1500) then
-				local calcPos = ProdictionQ:GetPrediction(LOCAL_TAR)
-				local coll = Collision(Qrange, Qspeed, Qdelay, Qwidth)
-				if calcPos ~= nil and not coll:GetMinionCollision(calcPos, myHero) then
+
+	if Menu.ta.co == 3 and vpredicfile and VIP_USER then 
+		local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(ManQTar, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+		if HitChance >= minVPhit then
+			main_cast_pos = CastPosition
+			ManQHit = HitChance.."/5 - GRAB!"
+		else
+			ManQHit = HitChance.."/5 - NO"
+		end	
+	end
+	
+	
+	if Menu.ta.co == 4 and prodicfile and VIP_USER then 
+		local calcPos = ProdictionQ:GetPrediction(ManQTar)
+				if calcPos ~= nil and not QCOLL:GetMinionCollision(calcPos, myHero) then
 					main_cast_pos = calcPos
-				end
-			end
-		elseif Menu.specl.qopt.qopt1 == 2 then		
-			local BestTargetUnit, BestTargetDist, BestTargetCP = nil, 50000, nil
-			for i, enemy in ipairs(GetEnemyHeroes()) do
-				if ValidTarget(enemy, 1500) then
-					local calcPos = ProdictionQ:GetPrediction(enemy)
-					local coll = Collision(Qrange, Qspeed, Qdelay, Qwidth)
-					if calcPos ~= nil and not coll:GetMinionCollision(calcPos, myHero) then
-						if GetDistance(enemy) < BestTargetDist then
-							BestTargetUnit = enemy
-							BestTargetCP = calcPos
-						end
-					end
-					main_cast_pos = calcPos
-				end
-			end
-				
+				end	
+	end
+	
+	if main_cast_pos ~= nil and main_cast_pos.x ~= nil then
+		QMCP = main_cast_pos
+	else
+		QMCP = nil
+	end
+	if Menu.specl.qman.grab and GetDistance(ManQTar) < 1050 and QReady and main_cast_pos ~= nil and not ManQTar.dead then
+	print("grab")
+		_castSpell(_Q, main_cast_pos.x, main_cast_pos.z, nil)
+	end	
+	if Menu.ta.co == 1 then
+		if GetDistance(main_cast_pos) < 1000 then
+			ManQHit = "Could Hit"
+		else
+			ManQHit = "Could Fail"
+		end	
+	end
+	
+	if Menu.ta.co == 2 then
+		if GetDistance(main_cast_pos) < 1000 then
+			ManQHit = "Could Hit"
+		else
+			ManQHit = "Could Fail"
+		end		
+	end
+	
+	if Menu.ta.co == 4 then
+			if GetDistance(main_cast_pos) < 1000 and not QCOLL:GetMinionCollision(QMCP, myHero) then
+			ManQHit = "GRAB!"
+		else
+			ManQHit = "WAIT!"
 		end
+	
+	end
+	
+	
+end
+
+
+function cast_pred_q()
+if forced then return end
+local LOCAL_TAR = nil
+local main_cast_pos = nil
+if ValidTarget(SelectedTarget, Qrange) and not Ignore(SelectedTarget) and Menu.specl.selec then
+	LOCAL_TAR = SelectedTarget
+elseif ValidTarget(Target, Qrange) and not Ignore(SelectedTarget) and Menu.specl.qopt.qts == 1 then
+	LOCAL_TAR = Target
+elseif ValidTarget(qts.target, Qrange) and not Ignore(SelectedTarget) and Menu.specl.qopt.qts == 2 and Menu.specl.qopt.qopt1 == 1 then
+	LOCAL_TAR = qts.target
+end
+MarkIt = LOCAL_TAR
+QMark = LOCAL_TAR
+
+	if Menu.ta.co == 1 then	 
+		if LOCAL_TAR ~= nil and LOCAL_TAR.visible then
+			local Position = FreePredictionQ:GetPrediction(LOCAL_TAR)
+			if Position ~= nil and GetDistance(Position) < Qrange then
+				main_cast_pos = Position				
+			end		
+		end	
+	end	 
+	
+	if Menu.ta.co == 2 and VIP_USER then 
+		if LOCAL_TAR ~= nil and LOCAL_TAR.visible then
+			local Position = VipPredictionQ:GetPrediction(LOCAL_TAR)
+			if Position ~= nil then
+				main_cast_pos = Position				
+			end		
+		end	
+	end	
+
+	
+	if Menu.ta.co == 3 and vpredicfile and Menu.specl.qopt.qts == 1 and ValidTarget(LOCAL_TAR) then 
+		local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(LOCAL_TAR, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+		if HitChance >= minVPhit and GetDistance(CastPosition) < 5000 then
+			main_cast_pos = CastPosition
+		end	
+	end
+	if Menu.ta.co == 3 and vpredicfile and Menu.specl.qopt.qts == 2 and Menu.specl.qopt.qopt1 == 1 and ValidTarget(qts.target) then 
+		local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(qts.target, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+		if HitChance >= minVPhit and GetDistance(CastPosition) < 5000 then
+			main_cast_pos = CastPosition
+			QMark = qts.target
+		end	
+	
+	end
+	if Menu.ta.co == 3 and vpredicfile and Menu.specl.qopt.qts == 2 and Menu.specl.qopt.qopt1 == 2 then 
+		local BestHitUnit, BestHitChance, BestHitPos = nil, -10, nil
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			if not enemy.dead and enemy ~= nil and ValidTarget(enemy) then
+				local CastPosition, HitChance, HeroPosition = VP:GetLineCastPosition(enemy, Qdelay, Qwidth, Qrange, Qspeed, myHero, true)
+				if HitChance >= minVPhit and HitChance >= BestHitChance then
+					BestHitUnit = enemy
+					BestHitChance = HitChance
+					BestHitPos = CastPosition				
+				end
+			end
+		end
+		
+		if ValidTarget(BestHitUnit) and BestHitChance >= minVPhit and BestHitPos.x ~= nil then
+			main_cast_pos = BestHitPos
+			QMark = BestHitUnit
+		end	
 	end
 
+	
 
+	if Menu.ta.co == 4 and prodicfile and Menu.specl.qopt.qts == 1 and ValidTarget(LOCAL_TAR) then 
+		local calcPos = ProdictionQ:GetPrediction(LOCAL_TAR)
+				if calcPos ~= nil and not QCOLL:GetMinionCollision(calcPos, myHero) then
+					main_cast_pos = calcPos
+				end	
+	end
+	
+	if Menu.ta.co == 4 and prodicfile and Menu.specl.qopt.qts == 2 and Menu.specl.qopt.qopt1 == 1 and ValidTarget(qts.target) then 
+			local calcPos = ProdictionQ:GetPrediction(qts.target)
+			if calcPos ~= nil and not QCOLL:GetMinionCollision(calcPos, myHero) then
+				main_cast_pos = calcPos
+				QMark = qts.target
+			end
+	end	
 
-	if main_cast_pos ~= nil and QReady then	
-		_castSpell(_Q, main_cast_pos.x, main_cast_pos.z, nil)	
+	if Menu.ta.co == 4 and prodicfile and Menu.specl.qopt.qts == 2 and Menu.specl.qopt.qopt1 == 2 then
+		local BestHitUnit, BestHitDist, BestHitPos = nil, 50000, nil
+		for i, enemy in ipairs(GetEnemyHeroes()) do
+			if not enemy.dead and enemy ~= nil and ValidTarget(enemy) then
+				local calcPos = ProdictionQ:GetPrediction(enemy)
+				if calcPos ~= nil and not QCOLL:GetMinionCollision(calcPos, myHero) and GetDistance(enemy) <= BestHitDist then
+					BestHitUnit = enemy
+					BestHitDist = GetDistance(enemy)
+					BestHitPos = calcPos
+				end	
+			end
+		end
+		if ValidTarget(BestHitUnit) and BestHitDist <= 5000 and BestHitPos.x ~= nil then
+			main_cast_pos = BestHitPos
+			QMark = BestHitUnit
+		end
+	end		
+	
+	if main_cast_pos ~= nil and main_cast_pos.x ~= nil and VIP_USER then
+		QMCP = main_cast_pos
+	else
+		QMCP = nil
 	end
 
+	if (Menu.keys.permrota or Menu.keys.okdrota) and QReady and main_cast_pos ~= nil then
+		_castSpell(_Q, main_cast_pos.x, main_cast_pos.z, nil)
+	end
 end
 
 
@@ -835,8 +1028,8 @@ if not WReady then return end
 if not WReady then return end
 local EnemyInMyRange = 0
 
-EnemyInMyRange = CountEnemyHeroInRange(Menu.specl.wopt.wopt1, myHero)
-if EnemyInMyRange >= Menu.specl.wopt.wopt2 then
+EnemyInMyRange = CountEnemyHeroInRange(Menu.specl.wopt.range, myHero)
+if EnemyInMyRange ~=nil and EnemyInMyRange >= Menu.specl.wopt.enemy then
 	CastSpell(_W)
 end
 end
@@ -852,7 +1045,7 @@ elseif ValidTarget(Target, 210) and Menu.specl.eopt.ets == 1 then
 elseif ValidTarget(ets.target, 210) and Menu.specl.eopt.ets == 2 then
 	LOCAL_TAR = ets.target
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Erange) then return end
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Erange) then return end  
 MarkIt = LOCAL_TAR
 
 if Menu.specl.eopt.eopt1 == 1 then
@@ -876,20 +1069,32 @@ end
 end
 
 
+function ksecurer()
+if Menu.specl.ropt.ks and RReady then
+	for i, enemy in ipairs(GetEnemyHeroes()) do
+	if not enemy.dead and enemy.visible and ValidTarget(enemy, 595) and RReady then
+		if enemy.health*1.025 < getDmg("R", enemy, myHero) then			
+			_castSpell(_R, myHero.x, myHero.z, nil)
+		end	
+	end	
+	end
+end
+end
+
+
 function cast_pred_r()
 if not RReady then return end
-local LOCAL_TAR = nil
-if ValidTarget(SelectedTarget, Rrange) and Menu.specl.selec then
-	LOCAL_TAR = SelectedTarget
-elseif ValidTarget(Target, Rrange) and Menu.specl.ropt.rts == 1 then
-	LOCAL_TAR = Target
-elseif ValidTarget(rts.target, Rrange) and Menu.specl.ropt.rts == 2 then
-	LOCAL_TAR = rts.target
-end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Rrange) then return end
-MarkIt = LOCAL_TAR
-if ValidTarget(LOCAL_TAR, Rrange) then
-	_castSpell(_R, myHero.x, myHero.z, nil)	
+if Menu.specl.ropt.limit then
+
+	local LECount = CountEnemyHeroInRange(Menu.specl.ropt.ropt2sliderrange, myHero)
+	if LECount >= Menu.specl.ropt.ropt2sliderenemy then
+		_castSpell(_R, myHero.x, myHero.z, nil)
+	end
+else
+	local ENLCount = CountEnemyHeroInRange(450, myHero)
+	if ENLCount >= 1 then 
+		_castSpell(_R, myHero.x, myHero.z, nil)
+	end
 end
 end
 
@@ -920,13 +1125,11 @@ end
 function cast_lc_e()
 if not EReady then return end
 	for i, minion in pairs(MyMinionManager.objects) do 
-		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= Erange and not minion.dead and minion.visible and minion.health < getDmg("AD", minion, myHero) then
+		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= Erange and not minion.dead and minion.visible and (minion.health < (getDmg("AD", minion, myHero)*1.85)) then
 			CastSpell(_E)
 			myHero:Attack(minion)
 		end
 	end
-
-
 end
 
 
@@ -934,7 +1137,7 @@ function cast_lc_r()
 if not RReady then return end
 local minionCount = 0
 	for i, minion in pairs(MyMinionManager.objects) do
-		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= Rrange and not minion.dead and minion.visible and minion.health < getDmg("R", minion, myHero) then
+		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= 590 and not minion.dead and minion.visible and minion.health < getDmg("R", minion, myHero) then
 			minionCount = minionCount + 1
 		end
 	end
@@ -1055,6 +1258,7 @@ function _getTarget()
 	
 	
 	if is_MMA and Menu.ta.mma.mmastatus then
+		SOW:DisableAttacks()
 		if _G.MMA_Target and _G.MMA_Target.type == myHero.type then
 			return _G.MMA_Target 
 		end
@@ -1062,6 +1266,7 @@ function _getTarget()
 	
 	
 	if is_SAC and Menu.ta.sac.sacstatus then
+		SOW:DisableAttacks()
 		if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then
 			return _G.AutoCarry.Attack_Crosshair.target		
 		end
@@ -1069,6 +1274,7 @@ function _getTarget()
 
 	
 	if sowfile and Menu.ta.sow.sowstatus then
+		SOW:EnableAttacks()
 		return SOW:GetTarget()
 	end
 	
@@ -1310,6 +1516,19 @@ function Reset()
 end
 
 
+function Ignore(target)
+if not ValidTarget(target) then
+	return true
+end
+
+if Menu.specl.ignore[target.charName] then
+	return true
+else
+	return false
+end
+end
+
+
 function _castSpell(TSPELL, TSPELLX, TSPELLZ, TUNIT)
 	if TUNIT~=nil and TSPELLX==nil and TSPELLZ==nil and ValidTarget(TUNIT) then
 		if Menu.extra.ex.packetcast == 1 and TSPELL~=_R then	
@@ -1365,5 +1584,69 @@ local cansend = false
 		SendPacket(CSOpacket)
 	end
 	if not cansend then print("<font color='#F72828'>[CSOP][ERROR]Invalid Operator</font>") end
+end
+
+
+function DownloadAll()
+Debug("Start DownloadALL")
+local siteVP = "http://bilbao.lima-city.de/VPrediction.lua"
+local siteSOW = "http://bilbao.lima-city.de/SOW.lua"
+local siteSOURCE = "http://bilbao.lima-city.de/SourceLib.lua"
+local sitePRO = "http://bilbao.lima-city.de/Prodiction.lua"
+local siteCollision = "http://bilbao.lima-city.de/Collision.lua"
+
+	if not FileExist(LIB_PATH.."VPrediction.lua") then
+		Debug("Download VPrediction.")
+		DownoadSite(siteVP, "VPrediction.lua", "VPrediction")
+	else
+		Debug("VPrediction exists.")
+	end
+	
+	if not FileExist(LIB_PATH.."SOW.lua") then
+		Debug("Download SOW.")
+		DownoadSite(siteSOW, "SOW.lua", "SimpleOrbwalker")
+	else
+		Debug("SOW exists.")
+	end
+	
+	if not FileExist(LIB_PATH.."SourceLib.lua") then
+		Debug("Download SourceLib.")
+		DownoadSite(siteSOW, "SourceLib.lua", "SourceLib")
+	else
+		Debug("SOW exists.")
+	end
+	
+	if not FileExist(LIB_PATH.."Prodiction.lua") then
+		Debug("Download Prodiction")
+		DownoadSite(siteVP, "Prodiction.lua", "Prodiction 0.9d")
+	else
+		Debug("Prodiction exists.")
+	end
+	
+	if not FileExist(LIB_PATH.."Collision.lua") then
+		Debug("Download Collision.")
+		DownoadSite(siteVP, "Collision.lua", "Collision")
+	else
+		Debug("Collision exists.")
+	end
+	
+Debug("Finished DownloadALL")
+end
+
+
+function DownoadSite(url, savename, show)
+Debug("initiate "..show.." download")
+	DownloadFile(url, LIB_PATH..savename, function()
+							if FileExist(LIB_PATH..savename) then								
+							Debug("Downloaded "..show.." Complete.")								
+							end
+						end
+				)
+end
+
+
+function Debug(input)
+if not ShowDebugText then return end
+print("Debug: "..input)
 end
 --[[/Utility]]--
