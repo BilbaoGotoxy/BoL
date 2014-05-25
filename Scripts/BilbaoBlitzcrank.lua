@@ -9,7 +9,7 @@ local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.2
+local CurVer = 0.5
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -125,6 +125,7 @@ end
 	local checkedMMASAC = false
 	local is_MMA = false
 	local is_SAC = false
+	local is_SOWon = false
 	-------/Orbwalk info-------
 	
 	
@@ -219,7 +220,8 @@ end
 function _loadSOW()
 if not sowfile or not vpredicfile then return end
    SOW = SOW(VP)
-   SOW:LoadToMenu()  
+   SOW:LoadToMenu() 
+   is_SOWon = true
 end
 
 
@@ -1213,7 +1215,7 @@ function _check_mmasac()
 	end
 	
 	
-	if sowfile and vpredicfile then
+	if sowfile and vpredicfile and is_SOWon then
 		Menu.ta:addSubMenu("Simple Orbwalker", "sow")
 		Menu.ta.sow:addParam("sowstatus", "Use SOW Target Selector", SCRIPT_PARAM_ONOFF, false)
 	end
@@ -1245,7 +1247,7 @@ function _getTarget()
 	local tscount = 0
 	
 	
-	if sowfile and Menu.ta.sow.sowstatus then tscount = tscount + 1 end
+	if is_SOWon and sowfile and Menu.ta.sow.sowstatus then tscount = tscount + 1 end
 	if is_MMA and Menu.ta.mma.mmastatus then tscount = tscount + 1 end
 	if is_SAC and Menu.ta.sac.sacstatus then tscount = tscount + 1 end
 	
