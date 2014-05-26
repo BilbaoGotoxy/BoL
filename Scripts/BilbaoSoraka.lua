@@ -1,4 +1,4 @@
- if myHero.charName ~= "Soraka" then return end
+if myHero.charName ~= "Soraka" then return end
 --[[       ------------------------------------------       ]]--
 --[[				BilbaoSoraka by Bilbao				]]--
 --[[       ------------------------------------------       ]]--
@@ -9,7 +9,7 @@ local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 110.1
+local CurVer = 0.2
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -244,9 +244,7 @@ function _load_menu()
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("LaneClear", "laneclear")		
 				Menu.laneclear:addParam("autolcQ", "Auto Use Q", SCRIPT_PARAM_ONOFF, false)
-				Menu.laneclear:addParam("autolcW", "Auto Use W", SCRIPT_PARAM_ONOFF, false)
 				Menu.laneclear:addParam("autolcE", "Auto Use E", SCRIPT_PARAM_ONOFF, false)
-				Menu.laneclear:addParam("autolcR", "Auto Use R", SCRIPT_PARAM_ONOFF, false)
 		-----------------------------------------------------------------------------------------------------
 		
 		Menu:addSubMenu("Mana Manager", "manamenu")
@@ -271,12 +269,8 @@ function _load_menu()
 			Menu.manamenu:addSubMenu("LaneClear", "manalc")
 				Menu.manamenu.manalc:addParam("manaq", "Q ManaManager", SCRIPT_PARAM_ONOFF, false) 
 				Menu.manamenu.manalc:addParam("sliderq", "Use Q only if mana over %",  SCRIPT_PARAM_SLICE, 50, 0, 100, 0) 
-				Menu.manamenu.manalc:addParam("manaw", "W ManaManager", SCRIPT_PARAM_ONOFF, false) 
-				Menu.manamenu.manalc:addParam("sliderw", "Use W only if mana over %",  SCRIPT_PARAM_SLICE, 50, 0, 100, 0) 
 				Menu.manamenu.manalc:addParam("manae", "E ManaManager", SCRIPT_PARAM_ONOFF, false) 
 				Menu.manamenu.manalc:addParam("slidere", "Use E only if mana over %",  SCRIPT_PARAM_SLICE, 50, 0, 100, 0) 
-				Menu.manamenu.manalc:addParam("manar", "R ManaManager", SCRIPT_PARAM_ONOFF, false) 
-				Menu.manamenu.manalc:addParam("sliderr", "Use R only if mana over %",  SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 		-----------------------------------------------------------------------------------------------------
 		Menu:addSubMenu("Hotkeys", "keys")		
 			Menu.keys:addParam("permrota", "Auto Rotation(SBTW)", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("S"))
@@ -325,8 +319,6 @@ function _load_menu()
 				Menu.specl:addSubMenu("W-Options", "wopt")
 					Menu.specl.wopt:addParam("wopt111", "Allow overheal", SCRIPT_PARAM_ONOFF, false)
 					Menu.specl.wopt:addParam("wopt1", "Heal Prio", SCRIPT_PARAM_LIST, 1, { "Order", "Self > Order" })
-					Menu.specl.wopt:addParam("info", "Heal Conditions: ", SCRIPT_PARAM_INFO, "")
-					Menu.specl.wopt:addParam("healcalc", "Health Calculation", SCRIPT_PARAM_LIST, 1, { "Procentual HP", "Total HP" })
 					Menu.specl.wopt:addParam("info22", "   ", SCRIPT_PARAM_INFO, "")					
 					Menu.specl.wopt:addParam("info3", "Heal Mode: ", SCRIPT_PARAM_INFO, "")
 					Menu.specl.wopt:addParam("wopt3", "Mode: ", SCRIPT_PARAM_LIST, 1, { "Smart", "Limited" })
@@ -336,11 +328,10 @@ function _load_menu()
 					Menu.specl.eopt:addParam("ets", "E Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "E-TargetSelector" })
 					Menu.specl.eopt:addParam("eopt1", "Save for Interrupt", SCRIPT_PARAM_ONOFF, false)
 					Menu.specl.eopt:addParam("info22", "   ", SCRIPT_PARAM_INFO, "")
-					Menu.specl.eopt:addParam("eopt2", "Use for ManaRestore", SCRIPT_PARAM_ONOFF, false)
-					Menu.specl.eopt:addParam("manaclac", "Mana Calculation", SCRIPT_PARAM_LIST, 1, { "Procentual Mana", "Total Mana" })
+					Menu.specl.eopt:addParam("eopt2", "Use for AllyManaRestore", SCRIPT_PARAM_ONOFF, false)
+
 
 				Menu.specl:addSubMenu("R-Options", "ropt")
-					Menu.specl.ropt:addParam("ropt1", "Allow overheal", SCRIPT_PARAM_ONOFF, false)
 					Menu.specl.ropt:addParam("ropt1", "Heal if below %-Health",  SCRIPT_PARAM_SLICE, 35, 0, 100, 0)
 					Menu.specl.ropt:addParam("ropt2", "Limit Range", SCRIPT_PARAM_ONOFF, false)
 					Menu.specl.ropt:addParam("ropt3", "Only Heal Ally in Range",  SCRIPT_PARAM_SLICE, 35, 0, 20000, 4)					
@@ -482,14 +473,10 @@ end
 function _draw_tarinfo()
 	if not ValidTarget(Target) then return end
 	local p = WorldToScreen(D3DXVECTOR3(Target.x, Target.y, Target.z))
-	if not OnScreen(p.x, p.y) then return end
-	
-	
+	if not OnScreen(p.x, p.y) then return end	
 		if Menu.draw.prdraw.enemyline and Target.visible and not Target.dead then		
 			DrawLine3D(myHero.x, myHero.y, myHero.z, Target.x, Target.y, Target.z, 1, ARGB(250,235,33,33))
-		end	
-		
-		
+		end			
 		if Menu.draw.prdraw.enemy and Target.visible and not Target.dead then			
 			    for j=1, 25 do
                         local ycircle = (j*(120/25*2)-120)
@@ -505,10 +492,7 @@ function _draw_predDmg()
 	if not Menu.draw.prdraw.prdmg then return end
 	local currLine = 1
 	local dmgtyp = ""
-	if Menu.draw.prdraw.visu == 2 then dmgtyp = "%" end
-
-				
-				
+	if Menu.draw.prdraw.visu == 2 then dmgtyp = "%" end				
 	for i, enemy in ipairs(GetEnemyHeroes()) do		
 		if enemy ~= nil and not enemy.dead and enemy.visible then		
 			if QReady then
@@ -519,27 +503,15 @@ function _draw_predDmg()
 				DrawLineHPBar(_dmg("E", enemy), currLine, "E: ".._dmg("E", enemy)..dmgtyp, enemy, true)
 				currLine = currLine + 1
 			end
-			if RReady then
-				DrawLineHPBar(_dmg("R", enemy), currLine, "R: ".._dmg("R", enemy)..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			end
-			if QReady and EReady and RReady then
-				DrawLineHPBar((_dmg("Q", enemy)+_dmg("E", enemy)+_dmg("R", enemy)), currLine, "QER: "..(_dmg("Q", enemy)+_dmg("E", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			elseif QReady and Eready and not RReady then
-				DrawLineHPBar((_dmg("Q", enemy)+_dmg("E", enemy)), currLine, "QE: "..(_dmg("Q", enemy)+_dmg("E", enemy))..dmgtyp, enemy, true)
-				currLine = currLine + 1
-			elseif RReady and QReady and not EReady then
-					DrawLineHPBar((_dmg("Q", enemy)+_dmg("R", enemy)), currLine, "QR: "..(_dmg("Q", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
-					currLine = currLine + 1
-			elseif RReady and EReady and not QReady then
-				DrawLineHPBar((_dmg("E", enemy)+_dmg("R", enemy)), currLine, "ER: "..(_dmg("E", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
-				currLine = currLine + 1
+			if EReady and QReady then
+				DrawLineHPBar((_dmg("E", enemy)+_dmg("Q", enemy)), currLine, "QE: "..(_dmg("E", enemy)+_dmg("Q", enemy))..dmgtyp, enemy, true)
+				currLine = currLine + 1		
 			end
 
 		end
 	end	
 end
+
 
 function _dmg(spell, target)
 	if Menu.draw.prdraw.visu == 1 then
@@ -550,6 +522,7 @@ function _dmg(spell, target)
 
 	
 end
+
 
 function GetHPBarPos(enemy)
 	enemy.barData = {PercentageOffset = {x = -0.05, y = 0}}
@@ -707,23 +680,15 @@ if Menu.keys.okdlc then
 		cast_lc_q()
 	end
 	
-	if Menu.laneclear.autolcW and canWlc and WReady then
-		cast_lc_w()
-	end
-	
 	if Menu.laneclear.autolcE and canElc and EReady then
 		cast_lc_e()
 	end
+end
+
+
+end
+
 	
-	if Menu.laneclear.autolcR and canRlc and RReady then
-		cast_lc_r()
-	end
-end
-
-
-end
-
---					Menu.specl.qopt:addParam("qts", "Q Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "Q-TargetSelector" })	
 function cast_pred_q()
 if not QReady then return end
 local LOCAL_TAR = nil
@@ -734,105 +699,142 @@ elseif ValidTarget(Target, Qrange) and Menu.specl.qopt.qts == 1 then
 elseif ValidTarget(qts.target, Qrange) and Menu.specl.qopt.qts == 2 then
 	LOCAL_TAR = qts.target
 end
-if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end   ---EDIT RANGE
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end
 MarkIt = LOCAL_TAR
-	if LOCAL_TAR ~= nil and ValidTarget(LOCA_TAR, 520) then
+	if LOCAL_TAR ~= nil and ValidTarget(LOCAL_TAR, 520) then
 		_castSpell(_Q, myHero.x, myHero.z, nil)
 	end
 end
 
---[[
-					Menu.specl.wopt:addParam("wopt111", "Allow overheal", SCRIPT_PARAM_ONOFF, false)
-					Menu.specl.wopt:addParam("wopt1", "Heal Prio", SCRIPT_PARAM_LIST, 1, { "Order", "Self > Order" })
-					
 
-					
-					Menu.specl.wopt:addParam("healcalc", "Health Calculation", SCRIPT_PARAM_LIST, 1, { "Procentual HP", "Total HP" })
-					
-
-					Menu.specl.wopt:addParam("wopt3", "Mode: ", SCRIPT_PARAM_LIST, 1, { "Smart", "Limited" })
-					Menu.specl.wopt:addParam("wopt4", "Limited: Heal if below %-Health",  SCRIPT_PARAM_SLICE, 85, 0, 100, 0)
-					]]
 function cast_pred_w()
 if not WReady then return end
-
-local LowAlly, LowValue = nil, nil
-
-
-		for i, ally in ipairs(GetAllyHeroes()) do
-			if not ally.dead and GetDistance(ally) < Wrange then
-				if Menu.specl.wopt.healcalc == 1 then --%
-					if LowAlly == nil then
-						LowAlly = ally
-						LowValue = (ally.health / ally.maxHealth) * 100
-					else
-						if LowValue > ((ally.health / ally.maxHealth) * 100) then
-							LowAlly = ally
-							LowValue = (ally.health / ally.maxHealth) * 100						
-						end					
-					end				
-				else Menu.specl.wopt.healcalc == 2 then--total
-					if LowAlly == nil then
-						LowAlly = ally
-						LowValue = ally.health
-					else
-						if LowValue > ally.health then
-							LowAlly = ally
-							LowValue = ally.health						
-						end
+		if Menu.specl.wopt.wopt1 == 2 then
+			local selfmyWlvl = myHero:GetSpellData(_W).level
+			local selfmyWheal = ((((myWlvl * 50) + 20) + myHero.ap * 0.35) * (1 + (((100 - ((LowAlly.health / LowAlly.maxHealth) * 100))*0.5) / 100)))	
+			if myHero.health + selfmyWheal <= myHero.maxHealth then
+				if Menu.specl.wopt.wopt111 then
+					if (myHero.health + myWheal) < myHero.maxHealth then
+						CastSpell(_W, myHero)
 					end
+				else
+					CastSpell(_W, myHero)
+				end				
+			end		
+		end
+		
+		if Menu.specl.wopt.wopt1 == 1 then
+			local LowAlly, LowValue = nil, 50000
+			for i, ally in ipairs(GetAllyHeroes()) do
+				if ally ~= nil and not ally.dead and GetDistance(ally) < Wrange and ally.health <= LowValue then
+					LowAlly = ally
+					LowValue = ally.health				
+				end		
+			end
+			if myHero.health <= LowValue then
+				LowAlly = GetMyHero()
+				LowValue = myHero.health
+			end
+
+		if LowAlly ~= nil and not LowAlly.dead then
+			local myWlvl = myHero:GetSpellData(_W).level
+			local myWheal = ((((myWlvl * 50) + 20) + myHero.ap * 0.35) * (1 + (((100 - ((LowAlly.health / LowAlly.maxHealth) * 100))*0.5) / 100)))
+		
+			if Menu.specl.wopt.wopt3 == 1 then
+				if Menu.specl.wopt.wopt111 then
+						CastSpell(_W, LowAlly)
+				elseif not Menu.specl.wopt.wopt111 and (LowAlly.health + myWheal) < LowAlly.maxHealth then
+					CastSpell(_W, LowAlly)
+				end
+			elseif Menu.specl.wopt3 == 2 and ((LowAlly.health / LowAlly.maxHealth) * 100) <= Menu.specl.wopt.wopt4 then
+				if Menu.specl.wopt.wopt111 then
+					if (LowAlly.health + myWheal) < LowAlly.maxHealth then
+						CastSpell(_W, LowAlly)				
+					end
+				else			
+					CastSpell(_W, LowAlly)
 				end
 			end
-		end
-
+		end	
+		end		
 end
+
 
 
 function cast_pred_e()
 if not EReady then return end
+local LOCAL_TAR = nil
+if ValidTarget(SelectedTarget, Erange) and Menu.specl.selec then
+	LOCAL_TAR = SelectedTarget
+elseif ValidTarget(Target, Erange) and Menu.specl.eopt.ets == 1 then
+	LOCAL_TAR = Target
+elseif ValidTarget(ets.target, Erange) and Menu.specl.eopt.ets == 2 then
+	LOCAL_TAR = ets.target
+end
+if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Erange) then return end
+MarkIt = LOCAL_TAR
+
+local EINR = CountEnemyHeroInRange(1200, myHero)
+if EINR ~= nil and EINR <= 0 then
+	local ManaAlly, ManaP = nil, 100
+	for i, ally in ipairs(GetAllyHeroes()) do
+		if not ally.dead and GetDistance(ally) < Erange then
+			if ((ally.mana / ally.maxMana) * 100) < ManaP then
+				ManaALly = ally
+				ManaP = ((ally.mana / ally.maxMana) * 100)
+			end		
+		end	
+	end
+	if ManaALly ~= nil and GetDistance(ManaAlly) < Erange then
+		_castSpell(_E, nil, nil, ManaALly)	
+	end
+end
 
 
-
-
+if ValidTarget(LOCAL_TAR, Erange*0.99) and not Menu.specl.eopt.eopt1 then
+	_castSpell(_E, nil, nil, LOCAL_TAR)	
+end
 end
 
 
 function cast_pred_r()
 if not RReady then return end
-
+	if ((myHero.health / myHero.maxHealth) * 100) < Menu.specl.ropt.ropt1 then _castSpell(_R, myHero.x, myHero.z, nil) end
+	for i, ally in ipairs(GetAllyHeroes()) do
+		if not ally.dead then
+			if ((ally.health / ally.maxHealth) * 100) < Menu.specl.ropt.ropt1 then 
+				if Menu.specl.ropt.ropt2 then --
+					if GetDistance(ally) < Menu.specl.ropt.ropt3 then
+						_castSpell(_R, myHero.x, myHero.z, nil)
+						break					
+					end				
+				else
+					_castSpell(_R, myHero.x, myHero.z, nil)
+					break
+				end			
+			end		
+		end
+	end				
 end
+
 
 function cast_lc_q()
 if not QReady then return end
-
-
-
-end
-
-
-function cast_lc_w()
-if not WReady then return end
-
-
-
-
+	for i, minion in pairs(MyMinionManager.objects) do 
+		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= Qrange*0.99 and not minion.dead and minion.visible then
+			CastSpell(_Q)
+		end
+	end
 end
 
 
 function cast_lc_e()
 if not EReady then return end
-
-
-
-end
-
-
-function cast_lc_r()
-if not RReady then return end
-
-
-
-
+	for i, minion in pairs(MyMinionManager.objects) do 
+		if minion ~= nil and minion.valid and minion.team ~= myHero.team and GetDistance(minion) <= Erange and not minion.dead and minion.visible and ((minion.health*1.01) < getDmg("AD", minion, myHero)) then
+			CastSpell(_E, minion)
+		end
+	end
 end
 --[[/OnTick]]--
 
