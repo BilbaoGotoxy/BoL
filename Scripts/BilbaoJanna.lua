@@ -1,4 +1,4 @@
- if myHero.charName ~= "Janna" then return end
+if myHero.charName ~= "Janna" then return end
 --[[       ------------------------------------------       ]]--
 --[[				BilbaoJanna by Bilbao				]]--
 --[[       ------------------------------------------       ]]--
@@ -9,7 +9,7 @@ local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.1
+local CurVer = 0.2
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -99,7 +99,7 @@ end
 
 
 	-------Skills info-------	
-	local Qrange, Qwidth, Qspeed, Qdelay = 1200, 200, 900, 0.5	--max 1800
+	local Qrange, Qwidth, Qspeed, Qdelay = 1110, 200, 900, 0.5
 	local Wrange, Wwidth, Wspeed, Wdelay = 600, 1, 1, 0.5	
 	local Erange, Ewidth, Espeed, Edelay = 800, 1, 1, 0.5	
 	local Rrange, Rwidth, Rspeed, Rdelay = 725, 1, 7777, 0.5
