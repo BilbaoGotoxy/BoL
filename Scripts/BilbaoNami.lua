@@ -1,4 +1,4 @@
- if myHero.charName ~= "Nami" then return end
+if myHero.charName ~= "Nami" then return end
 --[[       ------------------------------------------       ]]--
 --[[				BilbaoNami by Bilbao				]]--
 --[[       ------------------------------------------       ]]--
@@ -10,7 +10,7 @@ local ShowDebugText = false
 
 
 -------Auto update-------
-local CurVer = 0.1
+local CurVer = 0.2
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
