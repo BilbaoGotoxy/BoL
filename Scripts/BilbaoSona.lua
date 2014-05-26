@@ -1,4 +1,4 @@
- if myHero.charName ~= "Sona" then return end
+if myHero.charName ~= "Sona" then return end
 --[[       ------------------------------------------       ]]--
 --[[				BilbaoSona by Bilbao					]]--
 --[[       ------------------------------------------       ]]--
@@ -9,7 +9,7 @@ local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.1
+local CurVer = 0.2
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -401,34 +401,6 @@ end
 --[/OnLoad]--
 
 
---[[OnProcessSpell]]--
-function OnProcessSpell(object, spell)
-
-
-end
---[[/OnProcessSpell]]--
-
-
---[[OnObject]]--
-function OnCreateObj()
-end
-
-
-function OnDeleteObj()
-end
---[[/OnObject]]--
-
-
---[[OnPacket]]--
-function OnRecvPacket()
-end
-
-
-function OnSendPacket()
-end
---[[/OnPacket]]--
-
-
 --[[OnWndMsg]]--
 function OnWndMsg(Msg, Key)
 	if Msg == WM_LBUTTONDOWN then
@@ -498,14 +470,10 @@ end
 function _draw_tarinfo()
 	if not ValidTarget(Target) then return end
 	local p = WorldToScreen(D3DXVECTOR3(Target.x, Target.y, Target.z))
-	if not OnScreen(p.x, p.y) then return end
-	
-	
+	if not OnScreen(p.x, p.y) then return end	
 		if Menu.draw.prdraw.enemyline and Target.visible and not Target.dead then		
 			DrawLine3D(myHero.x, myHero.y, myHero.z, Target.x, Target.y, Target.z, 1, ARGB(250,235,33,33))
-		end	
-		
-		
+		end			
 		if Menu.draw.prdraw.enemy and Target.visible and not Target.dead then			
 			    for j=1, 25 do
                         local ycircle = (j*(120/25*2)-120)
@@ -537,11 +505,11 @@ function _draw_predDmg()
 			if QReady and RReady then
 				DrawLineHPBar((_dmg("Q", enemy)+_dmg("R", enemy)), currLine, "QR: "..(_dmg("Q", enemy)+_dmg("R", enemy))..dmgtyp, enemy, true)
 				currLine = currLine + 1
-			end
-				
+			end				
 		end
 	end	
 end
+
 
 function _dmg(spell, target)
 	if Menu.draw.prdraw.visu == 1 then
@@ -550,6 +518,7 @@ function _dmg(spell, target)
 		return math.round(((getDmg(spell, target, myHero) / target.maxHealth) * 100))
 	end		
 end
+
 
 function GetHPBarPos(enemy)
 	enemy.barData = {PercentageOffset = {x = -0.05, y = 0}}
@@ -721,8 +690,6 @@ if Menu.keys.okdlc then
 		cast_lc_r()
 	end
 end
-
-
 end
 
 
@@ -738,12 +705,9 @@ elseif ValidTarget(qts.target, Qrange) and Menu.specl.qopt.qts == 2 then
 end
 if not (LOCAL_TAR ~=nil and LOCAL_TAR.visible and GetDistance(LOCAL_TAR) < Qrange) then return end
 MarkIt = LOCAL_TAR
-
 	if LOCAL_TAR ~= nil and QReady then		
 			_castSpell(_Q, myHero.x, myHero.z, nil)		
 	end
-
-
 end
 
 
@@ -770,13 +734,11 @@ if NextNoobAlly ~= nil then
 		end	
 	end
 end
-
-
 end
+
 
 function _GetLowestAllyInRange(range, mode)
 local LowUnit, LowHealth = nil, 100000
-
 		for i = 1, heroManager.iCount, 1 do
 			local hero = heroManager:getHero(i)
 			if not hero.dead and hero.team == myHero.team then
@@ -794,6 +756,7 @@ local LowUnit, LowHealth = nil, 100000
 		end
 return LowUnit
 end
+
 
 function HealPower()
 if not WReady then return end 
@@ -822,11 +785,7 @@ end
 end
 
 
-
-
-
 function cast_pred_r()
-
 if not RReady then return end
 local LOCAL_TAR = nil
 if ValidTarget(SelectedTarget, Rrange) and Menu.specl.selec then
@@ -879,13 +838,7 @@ if Menu.ta.co == 1 then
 			main_cast_pos = ProdictionR:GetPrediction(LOCAL_TAR)
 		end
 	end	
---[[
-
-					Menu.specl.ropt:addParam("rts", "R Target", SCRIPT_PARAM_LIST, 1, { "MainTarget", "R-TargetSelector" })
-					Menu.specl.ropt:addParam("ropt1", "Force Multitarget", SCRIPT_PARAM_ONOFF, false)
-					Menu.specl.ropt:addParam("ropt1slider", "Multitarget Amount",  SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
-					
-					]]--	
+	
 	if main_cast_pos ~= nil and RReady then	
 		if Menu.specl.ropt.ropt1 then
 			local ECount = CountEnemyHeroInRange(350, LOCAL_TAR)
@@ -895,9 +848,7 @@ if Menu.ta.co == 1 then
 		else
 			_castSpell(_R, main_cast_pos.x, main_cast_pos.z, nil)
 		end
-	end	
-
-
+	end
 end
 
 
@@ -1385,7 +1336,6 @@ if not ShowDebugText then return end
 print("Debug: "..input)
 end
 --[[/Utility]]--
-
 
 
 
