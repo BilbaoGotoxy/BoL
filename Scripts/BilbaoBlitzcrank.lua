@@ -9,7 +9,7 @@ local ShowDebugText = false
 --[[ends here!]]--
 
 -------Auto update-------
-local CurVer = 0.5
+local CurVer = 0.6
 local NetVersion = nil
 local NeedUpdate = false
 local Do_Once = true
@@ -83,6 +83,11 @@ if VIP_USER then
 			require "VPrediction"
 			vpredic = true
             vpredicfile = true
+			if FileExist(SCRIPT_PATH..'Common/SOW.lua') then
+			    require "SOW"
+				sowfile = true
+				is_SOW = true 
+			end
 		else                           
 			freevippredicfile = true
         end            
@@ -90,12 +95,6 @@ if VIP_USER then
 	freepredicfile = true       
 end
 
-
-if FileExist(SCRIPT_PATH..'Common/SOW.lua') then
-    require "SOW"
-    sowfile = true
-    is_SOW = true          
-end
 
 
 	-------Skills info-------	
@@ -213,7 +212,7 @@ function _loadP()
 	if VIP_USER then
 		VipPredictionQ = TargetPredictionVIP(Qrange, Qspeed, Qdelay, Qwidth, myHero) 
 	end	
-		FreePredictionQ = TargetPrediction(Qrange, (Qspeed / 1000), (Qdelay * 1000), Qwidth)
+		FreePredictionQ = TargetPrediction(Qrange, Qspeed, Qdelay, Qwidth)
 end
 
 
@@ -561,7 +560,7 @@ end
 
 
 function _draw_tarinfo()
-if ManQTar ~= nil and not ManQTar.dead and Menu.specl.qman.showhit then DrawText3D(""..ManQHit, ManQTar.x, ManQTar.y, ManQTar.z, 30, ARGB(255, 255, 255, 255), true) end
+if Menu.specl.qman.grab and ManQTar ~= nil and ManQTar.x ~= nil and not ManQTar.dead and Menu.specl.qman.showhit then DrawText3D(""..(ManQHit or " "), ManQTar.x, ManQTar.y, ManQTar.z, 30, ARGB(255, 255, 255, 255), true) end
 
 	if ValidTarget(QMark) then
 		if Menu.draw.prdraw.collision and not VIP_USER and QReady then
@@ -818,9 +817,10 @@ function ManualQ()
 local tmp_tar = GetTarget()
 if ManQTar ~= nil and ManQTar.dead then ManQTar = nil end
 
-if ValidTarget(tmp_tar) and tmp_tar ~= ManQTar then
+if tmp_tar ~= nil and ValidTarget(tmp_tar) and tmp_tar ~= ManQTar then
 	ManQTar = tmp_tar
 end
+
 local ManQTextUnit = ManQTar
 local main_cast_pos = nil
 if ValidTarget(ManQTar) and Menu.specl.qman.force then
@@ -828,6 +828,7 @@ if ValidTarget(ManQTar) and Menu.specl.qman.force then
 else
 	forced = false
 end
+
 if ManQTar == nil or ManQTar.dead then return end
 if Menu.specl.qman.grab and GetDistance(ManQTar) > 990 and not ManQTar.dead then
 	if Menu.specl.qman.move == 1 then
@@ -873,16 +874,17 @@ end
 					main_cast_pos = calcPos
 				end	
 	end
-	
+
 	if main_cast_pos ~= nil and main_cast_pos.x ~= nil then
 		QMCP = main_cast_pos
 	else
 		QMCP = nil
 	end
-	if Menu.specl.qman.grab and GetDistance(ManQTar) < 1050 and QReady and main_cast_pos ~= nil and not ManQTar.dead then
-	print("grab")
+-----------
+	if Menu.specl.qman.grab and QReady and main_cast_pos ~= nil and GetDistance(main_cast_pos) < 1000 then
 		_castSpell(_Q, main_cast_pos.x, main_cast_pos.z, nil)
 	end	
+if main_cast_pos ~= nil and main_cast_pos.x ~= nil and QReady then
 	if Menu.ta.co == 1 then
 		if GetDistance(main_cast_pos) < 1000 then
 			ManQHit = "Could Hit"
@@ -907,8 +909,7 @@ end
 		end
 	
 	end
-	
-	
+end
 end
 
 
