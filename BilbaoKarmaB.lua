@@ -1,7 +1,9 @@
 if myHero.charName ~= "Karma" then return end
+
 --[[       ----------------------------------------------------------------------------------------------       ]]--
 --[[									BilbaoKarma by Bilbao		    						   	 	        ]]--
 --[[       ----------------------------------------------------------------------------------------------       ]]--
+
 --[[04.06.2014 - Enabled VPred for FreeUser]]--
 
 _G.prodic = false
@@ -100,7 +102,7 @@ function OnLoad()
 	_loadP()
 	_load_menu()
 	_initiateTS()
-	PrintChat("<font color='#40FF00'> >> "..CurName.." v."..CurVer.." - loaded</font>")	
+	PrintChat("<font color='#40FF00'> >> "..CurName.." v."..CurVer.."B - loaded</font>")	
 end
 
 
