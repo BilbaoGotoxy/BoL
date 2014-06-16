@@ -1,4 +1,4 @@
-if myHero.charName ~= "Cassiopeia" or not VIP_USER then return end
+if myHero.charName ~= "Cassiopeia" then return end
 
 --[[	---------------------------------       ]]--
 --[[		Cassiopeia Du Coutea		          		]]--
