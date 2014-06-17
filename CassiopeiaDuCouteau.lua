@@ -1,7 +1,7 @@
 if myHero.charName ~= "Cassiopeia" then return end
 
 --[[	---------------------------------       ]]--
---[[		Cassiopeia Du Couteau				]]--
+--[[		Cassiopeia Du Coutea				]]--
 --[[			by Bilbao						]]--
 --[[	---------------------------------       ]]--
 
