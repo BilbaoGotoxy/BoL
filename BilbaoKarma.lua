@@ -82,7 +82,7 @@ if myHero.charName ~= "Karma" then return end
 	
 	
 	-------Auto update-------
-	local CurVer = 0.3
+	local CurVer = 0.4
 	local CurName = "BilbaoKarma"
 	local NeedUpdate = false
 	local updated = true	
@@ -710,7 +710,7 @@ local cansend = false
 		end
 	end
 	if cansend then
-		local CSOpacket = CLoLPacket(153)
+		local CSOpacket = CLoLPacket(0x99)
 		CSOpacket.dwArg1 = 1
 		CSOpacket.dwArg2 = 0
 		CSOpacket:EncodeF(myHero.networkID)
