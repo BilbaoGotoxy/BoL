@@ -54,7 +54,7 @@ local QERange = (Ranges[_Q] + 500)
 local QECombo = 0
 local WECombo = 0
 local EQCombo = 0
-
+local lastSkin = 0
 local DontUseRTime = 0
 local UseRTime = 0
 
@@ -168,7 +168,7 @@ function OnLoad()
 			DManager:CreateCircle(myHero, range, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, SpellToString(spell).." Range", true, true, true)
 		end
 		DManager:CreateCircle(myHero, QERange, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawings, "Q+E Range", true, true, true)
-
+	Menu:addParam("skin", "Shalzuth SkinHax", SCRIPT_PARAM_LIST, 3, { "Justicar Syndra", "Atlantean Syndra", "Classic Skin" })
 
 	--[[Predicted damage on healthbars]]
 	DLib:AddToMenu(Menu.Drawings, MainCombo)
@@ -734,6 +734,7 @@ function Harass()
 end
 
 function OnTick()
+	SkinHack()
 	DrawJungleStealingIndicator = false
 	BTOnTick()
 	SOWi:EnableAttacks()
@@ -836,4 +837,36 @@ function OnDraw()
 		DrawText(tostring("AH"), 16, pos.x+1, pos.y+1, ARGB(255, 0, 0, 0))
 		DrawText(tostring("AH"), 16, pos.x, pos.y, ARGB(255, 255, 255, 255))
 	end
+end
+
+function GenModelPacket(champ, skinId)
+	p = CLoLPacket(0x97)
+	p:EncodeF(myHero.networkID)
+	p.pos = 1
+	t1 = p:Decode1()
+	t2 = p:Decode1()
+	t3 = p:Decode1()
+	t4 = p:Decode1()
+	p:Encode1(t1)
+	p:Encode1(t2)
+	p:Encode1(t3)
+	p:Encode1(bit32.band(t4,0xB))
+	p:Encode1(1)--hardcode 1 bitfield
+	p:Encode4(skinId)
+	for i = 1, #champ do
+		p:Encode1(string.byte(champ:sub(i,i)))
+	end
+	for i = #champ + 1, 64 do
+		p:Encode1(0)
+	end
+	p:Hide()
+	RecvPacket(p)
+end
+
+
+function SkinHack()
+if Menu.skin ~= lastSkin and VIP_USER then
+	lastSkin = Menu.skin
+	GenModelPacket("Syndra", Menu.skin)
+end
 end
