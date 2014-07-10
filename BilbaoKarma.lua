@@ -710,7 +710,7 @@ local cansend = false
 		end
 	end
 	if cansend then
-		local CSOpacket = CLoLPacket(0x99)
+		local CSOpacket = CLoLPacket(Packet.headers.S_PING)
 		CSOpacket.dwArg1 = 1
 		CSOpacket.dwArg2 = 0
 		CSOpacket:EncodeF(myHero.networkID)
