@@ -1,4 +1,10 @@
 if myHero.charName ~= "Karma" then return end
+local novipend = false
+if not VIP_USER then
+	print("[BilbaoKarma] You are not VIP. This script works also for nonvip, but the most freeuser are not able to open and read the menu and change to nonpacket casting. So use the freeuser version in the mainpost, or remove this freeusercheck.")
+	novipend = true
+end
+if novipend then return end
 --[[       ----------------------------------------------------------------------------------------------       ]]--
 --[[									BilbaoKarma by Bilbao		    						   	 	        ]]--
 --[[       ----------------------------------------------------------------------------------------------       ]]--
