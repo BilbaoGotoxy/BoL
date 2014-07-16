@@ -680,7 +680,8 @@ function _castSpell(TSPELL, TSPELLX, TSPELLZ, TUNIT)
 			CastSpell(TSPELL, TUNIT)
 		end
 		if (Menu.extra.ex.packetcast == 1 or Menu.extra.ex.packetcast == 3) then
-			_CastSpellOverPacket(TSPELL, nil, nil, TUNIT)
+		--	_CastSpellOverPacket(TSPELL, nil, nil, TUNIT)
+			CastSpell(TSPELL, TUNIT)
 		end
 	end
 	if TUNIT==nil and TSPELLX~=nil and TSPELLZ~=nil then
@@ -688,7 +689,8 @@ function _castSpell(TSPELL, TSPELLX, TSPELLZ, TUNIT)
 			CastSpell(TSPELL, TSPELLX, TSPELLZ)
 		end
 		if (Menu.extra.ex.packetcast == 1 or Menu.extra.ex.packetcast == 3) then
-			_CastSpellOverPacket(TSPELL, TSPELLX, TSPELLZ, nil)
+		--	_CastSpellOverPacket(TSPELL, TSPELLX, TSPELLZ, nil)
+			CastSpell(TSPELL, TSPELLX, TSPELLZ)
 		end
 	end
 end
