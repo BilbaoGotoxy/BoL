@@ -1,4 +1,4 @@
---if myHero.charName ~= "Xerath" then return end
+if myHero.charName ~= "Xerath" then return end
 
 local version = 4.12
 local AUTOUPDATE = false
