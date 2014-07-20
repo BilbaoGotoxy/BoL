@@ -1,7 +1,7 @@
- if myHero.charName ~= "Xerath" then return end
+--if myHero.charName ~= "Xerath" then return end
 
 local version = 4.12
-local AUTOUPDATE = true
+local AUTOUPDATE = false
 local SCRIPT_NAME = "Xerath"
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -278,6 +278,7 @@ function OnLoad()
 		Menu.Misc:addParam("AutoEImmobile", "Auto E on immobile enemies", SCRIPT_PARAM_ONOFF, true)
 		Menu.Misc:addSubMenu("Anti-Gapclosers", "AG")
 			AntiGapcloser(Menu.Misc.AG, OnGapclose)
+		Menu.Misc:addParam("skin", "Skinhack by Shalzuth", SCRIPT_PARAM_LIST, 9, { "Runeborn", "Battlecast", "ScorchedEarth", "OriginalSkin" })
 	--[[Drawing]]
 	Menu:addSubMenu("Drawing", "Drawing")
 	 	DManager:CreateCircle(myHero, SOWi:MyRange() + 50, 1, {255, 255, 255, 255}):AddToMenu(Menu.Drawing, "AA Range", true, true, true)
@@ -369,7 +370,7 @@ end
 
 function OnTick()
 	SOWi:EnableAttacks()
-
+	SkinHack()
 	-- Ult not casting issue fix
 	if Menu.RSnipe._param[AllMenu].key == Menu.RSnipe._param[JungleMenu].key then
 		Menu.RSnipe._param[AllMenu].key    = 82 -- R
@@ -493,7 +494,38 @@ function Harass()
 	end
 end
 
-function Farm() --TODO
+function SkinHack()
+if VIP_USER and Menu.Misc.skin ~= lastSkin then
+	lastSkin = Menu.Misc.skin
+	GenModelPacket("Xerath", Menu.Misc.skin)
+end
+end
+
+function GenModelPacket(champ, skinId)
+	p = CLoLPacket(0x97)
+	p:EncodeF(myHero.networkID)
+	p.pos = 1
+	t1 = p:Decode1()
+	t2 = p:Decode1()
+	t3 = p:Decode1()
+	t4 = p:Decode1()
+	p:Encode1(t1)
+	p:Encode1(t2)
+	p:Encode1(t3)
+	p:Encode1(bit32.band(t4,0xB))
+	p:Encode1(1)--hardcode 1 bitfield
+	p:Encode4(skinId)
+	for i = 1, #champ do
+		p:Encode1(string.byte(champ:sub(i,i)))
+	end
+	for i = #champ + 1, 64 do
+		p:Encode1(0)
+	end
+	p:Hide()
+	RecvPacket(p)
+end
+
+function Farm() 
 	EnemyMinions:update()
 	if Menu.Farm.UseQ then
 		if not Q:IsCharging() then
@@ -577,3 +609,4 @@ function OnWndMsg(Msg, Key)
 		RCooldownTime = 0
 	end
 end
+
