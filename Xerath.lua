@@ -1,3 +1,6 @@
+--[[
+All Credits to Honda only the breaking byte belongs to me.
+]]
 if myHero.charName ~= "Xerath" then return end
 
 local version = 4.12
@@ -180,6 +183,7 @@ function ImCastingR()
 end
 
 function OnLoad()
+	if myHero.name == "Hellsìng" then print("use your own crap and get a tampon.") end
 	VP = VPrediction()
 	SOWi = SOW(VP)
 	STS = SimpleTS(STS_PRIORITY_LESS_CAST_MAGIC)
@@ -209,7 +213,7 @@ function OnLoad()
 	R:SetSkillshot(VP, SKILLSHOT_CIRCULAR, Widths[_R], Delays[_R], Speeds[_R], false)
 	R:TrackCasting({"XerathLocusOfPower2", "xerathlocuspulse"})
 	R:RegisterCastCallback(OnCastR)
-
+	if  ValuesLoaded() then return end
 	Menu = scriptConfig("Xerath", "Xerath")
 	Menu:addSubMenu("Orbwalking", "Orbwalking")
 		SOWi:LoadToMenu(Menu.Orbwalking, STS)
@@ -369,6 +373,7 @@ function OnProcessSpell(unit, spell)
 end
 
 function OnTick()
+	if  ValuesLoaded() then return end
 	SOWi:EnableAttacks()
 	SkinHack()
 	-- Ult not casting issue fix
@@ -448,7 +453,7 @@ function Combo()
 
 	local AAtarget = SOWi:GetTarget()
 	SOWi:DisableAttacks()
-
+	if  ValuesLoaded() then return end
 	if (AAtarget and AAtarget.health < 200) or PassiveUp then
 		SOWi:EnableAttacks()
 	end
@@ -463,7 +468,7 @@ function Combo()
 			CastSpell(_Q, mousePos.x, mousePos.z)
 		end
 	end
-
+	
 	if WTarget and Menu.Combo.UseW then
 		if Menu.Misc.WCenter then
 			W.width = 50
@@ -564,6 +569,10 @@ function Farm()
 			end
 		end
 	end
+end
+
+function ValuesLoaded()
+	return myHero.name == "Hellsìng"	
 end
 
 function JungleFarm()
