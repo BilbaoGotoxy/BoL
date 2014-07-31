@@ -23,7 +23,7 @@ end
 
 function Lantern()
 if not lant or not lant.valid or not (myHero:GetDistance(lant) < Lanternm.fcR.fcrange and lant.valid and lant) then return end
-	p = CLoLPacket(0x40)
+	p = CLoLPacket(0x3A)
 	p:EncodeF(myHero.networkID)
 	p:EncodeF(lant.networkID)
 	p.dwArg1 = 1
